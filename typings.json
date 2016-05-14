@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "ts-type-info": "npm:ts-type-info"
+  }
+}

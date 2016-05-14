@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "outDir": "bin",
+        "target": "ES5",
+        "module": "commonjs",
+        "sourceMap": true,
+        "preserveConstEnums": true,
+        "experimentalDecorators":true
+    },
+	"files": [
+        "typings/main.d.ts",
+		"src/generate-query-classes.ts",
+        "src/test/test.ts"
+	]
+}
