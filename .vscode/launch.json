@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceRoot}/src/generate-query-classes.ts",
             "stopOnEntry": false,
-            "args": ["./src/test/model.ts"],
+            "args": ["typings/main/ambient/core-js/index.d.ts","./src/test/test-model.ts"],
             "cwd": "${workspaceRoot}",
             "runtimeArgs": [
                 "--nolazy"
@@ -19,17 +19,22 @@
             "sourceMaps": true,
             "outDir": "${workspaceRoot}/bin"
         },
-        {
-            "name": "Attach",
+         {
+            "name": "Launch Test",
             "type": "node",
-            "request": "attach",
-            "port": 5858,
-            "address": "localhost",
-            "restart": false,
-            "sourceMaps": false,
-            "outDir": null,
-            "localRoot": "${workspaceRoot}",
-            "remoteRoot": null
+            "request": "launch",
+            "program": "${workspaceRoot}/src/test/test.ts",
+            "stopOnEntry": false,
+            "cwd": "${workspaceRoot}/src/test",
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "externalConsole": false,
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/src/test"
         }
     ]
 }

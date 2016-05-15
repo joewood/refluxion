@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "outDir": ".",
+        "target": "ES5",
+        "module": "commonjs",
+        "sourceMap": true,
+        "preserveConstEnums": true,
+        "experimentalDecorators":true,
+        "sourceRoot": "."
+    },
+	"files": [
+        "test.ts"
+	]
+}

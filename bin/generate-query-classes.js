@@ -11,6 +11,7 @@ function appendLine(path, line) {
 }
 /** For a specific class, for each many relationship add the specified line through the callback, same for each one-to-one */
 function mapClassMembers(c, hasMany, hasOne) {
+    var buffer = "";
     for (var _i = 0, _a = c.methods || []; _i < _a.length; _i++) {
         var p = _a[_i];
         if (!p.decorators || p.decorators.length === 0)
@@ -18,7 +19,7 @@ function mapClassMembers(c, hasMany, hasOne) {
         for (var _b = 0, _c = p.decorators; _b < _c.length; _b++) {
             var d = _c[_b];
             if (d.name === "hasMany") {
-                appendLine(outputPath, hasMany(d, p));
+                buffer += hasMany(d, p) + "\n";
             }
         }
     }
@@ -31,10 +32,11 @@ function mapClassMembers(c, hasMany, hasOne) {
             if (d.name === "hasOne") {
                 if (d.arguments.length > 2)
                     console.log("Prop " + p.name + " " + hasOne(d, p));
-                appendLine(outputPath, hasOne(d, p));
+                buffer += hasOne(d, p) + "\n";
             }
         }
     }
+    return buffer;
 }
 /** Convert the name of the class to the schema key name used for normalizr */
 function classNameToNormalizr(typeName) {
@@ -62,88 +64,106 @@ function getQueryClass(c, whereClass) {
     buffer += "}\n\n";
     return buffer;
 }
+function getNestedClass(collectClass) {
+    var buffer = "";
+    buffer += "export interface " + collectClass.name + "Nested {\n";
+    buffer += mapClassMembers(collectClass, function (d, p) { return ("\t" + convertMethodName(p.name) + "?: " + p.returnTypeExpression.types[0].typeArguments[0].text + "Query;"); }, function (d, p) { return ("\t" + ((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "") + "?: " + d.arguments[0].text + "Query;"); });
+    buffer += "}\n";
+    return buffer;
+}
+function getNormalizrDefine(collectClass) {
+    var buffer = "";
+    var normVarName = classNameToNormalizr(collectClass.name);
+    buffer += normVarName + ".define({\n";
+    buffer += mapClassMembers(collectClass, function (d, p) { return ("\t" + convertMethodName(p.name) + " : arrayOf(" + classNameToNormalizr(p.returnTypeExpression.types[0].typeArguments[0].text) + "),"); }, function (d, p) { return ("\t" + ((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "") + " : " + classNameToNormalizr(d.arguments[0].text) + ","); });
+    buffer += "});\n";
+    return buffer;
+}
+function getWhereInterface(collectClass) {
+    var buffer = "";
+    buffer += "export interface " + collectClass.name + " {\n";
+    buffer += collectClass.properties.map(function (p) { return ("\t" + p.name + "? : " + p.typeExpression.text + ";"); }).join('\n') + "\n";
+    buffer += "}\n\n";
+    return buffer;
+}
 ////////////////////
 if (process.argv.length < 3) {
     console.log("Usage: generate-query-classes <filename.ts>");
     process.exit();
 }
-var file = Path.resolve(process.cwd() + "/" + process.argv[2]);
-var outputFile = file.replace(".ts", ".query.ts");
-var gd = TsTypeInfo.getInfoFromFiles([file]);
-var modelFile = gd.files.find(function (ff) { return Path.resolve(ff.fileName) === file; });
+var inputFilenames = process.argv.slice(2).map(function (arg) { return Path.resolve(process.cwd() + "/" + arg); });
+var mainFilename = inputFilenames[inputFilenames.length - 1];
+var outputFilename = mainFilename.replace(".ts", ".query.ts");
+var justFilename = Path.basename(mainFilename);
+var query_file = Path.resolve(process.cwd() + "/src/test/query.ts");
+var gd = TsTypeInfo.getInfoFromFiles(inputFilenames);
+var modelFile = gd.files.find(function (ff) { return Path.resolve(ff.fileName) === mainFilename; });
 var root = modelFile.classes.find(function (i) { return !!i.decorators.find(function (d) { return d.name === "root"; }); });
 if (!root) {
     console.error("Cannot find a class with the decorator `root`");
 }
-console.log("Processing " + file + " for " + root.name);
-var outputPath = outputFile;
+console.log("Processing " + mainFilename + " for " + root.name);
+var outputPath = outputFilename;
 if (fs.existsSync(outputPath)) {
     fs.truncateSync(outputPath);
 }
-appendLine(outputPath, "import { Query } from \"./query\";");
+appendLine(outputPath, fs.readFileSync(query_file, "UTF8"));
+appendLine(outputPath, "\n\n");
 appendLine(outputPath, "import { normalize, Schema, arrayOf, valuesOf } from \"normalizr\";");
+appendLine(outputPath, "import * as Model from \"./" + justFilename + "\";");
 var _loop_1 = function(p) {
     var dec = p.decorators.find(function (d) { return d.name === "queryBy"; });
     if (!dec)
         return "continue";
-    var whereTypeName = dec.arguments[0].text;
-    if (!whereTypeName)
+    var whereClassName = dec.arguments[0].text;
+    if (!whereClassName)
         return "continue";
-    var whereInterface = modelFile.interfaces.find(function (c) { return c.name === whereTypeName; });
-    if (!whereInterface)
+    var whereClass = modelFile.classes.find(function (c) { return c.name === whereClassName; });
+    if (!whereClass)
         return "continue";
     var collectType = p.typeExpression.text;
+    if (collectType.startsWith("Dict"))
+        collectType = collectType.replace("Dict<", "").replace(">", "");
+    console.log("collect:" + collectType);
     var collectClass = modelFile.classes.find(function (c) { return c.name === collectType; });
-    appendLine(outputPath, "export const " + classNameToNormalizr(p.typeExpression.text) + " = new Schema(\"" + p.name + "\");");
-    appendLine(outputPath, getPrimitives(collectClass));
-    appendLine(outputPath, getQueryClass(collectClass, whereTypeName));
-    appendLine(outputPath, "export interface " + collectClass.name + "Nested {");
-    mapClassMembers(collectClass, function (d, p) { return ("\t" + convertMethodName(p.name) + "?: " + p.returnTypeExpression.types[0].typeArguments[0].text + "Query;"); }, function (d, p) { return ("\t" + ((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "") + "?: " + d.arguments[0].text + "Query;"); });
-    appendLine(outputPath, "}\n");
-    // find model master
-    // for (let i of modelFile.interfaces) {
-    //     if (i.name !== "ModelMaster") continue;
-    //     appendLine(outputPath, "// Model Master For Normalizr");
-    //     appendLine(outputPath, "export const user = new Schema(\"users\");");
-    //     appendLine(outputPath, "export const qualification = new Schema(\"qualifications\");");
-    //     appendLine(outputPath, "export const contract = new Schema(\"contracts\");");
-    //     appendLine(outputPath, "export const assignment = new Schema(\"assignments\");");
-    //     appendLine(outputPath, "export const site = new Schema(\"sites\");");
-    //     appendLine(outputPath, "export const client = new Schema(\"clients\");");
-    //     appendLine(outputPath, "export const agency = new Schema(\"agencies\");");
-    //     appendLine(outputPath, "export const vendor = new Schema(\"vendors\");");
-    //     appendLine(outputPath, "export const capability = new Schema(\"capabilities\");");
-    //     appendLine(outputPath, "export const project = new Schema(\"projects\");");
-    //     appendLine(outputPath, "export const job = new Schema(\"jobs\");");
-    //     appendLine(outputPath, "export const jobRequirement = new Schema(\"jobRequirements\");");
-    //     appendLine(outputPath, "export const availabilityEvent = new Schema(\"availabilityEvents\");");
-    //     appendLine(outputPath, "export const userSite = new Schema(\"userSites\");");
-    //     appendLine(outputPath, "export const timesheet = new Schema(\"timesheets\");");
-    //     appendLine(outputPath, "");
-    // break;
-    // for (let p of i.properties) {
-    //     console.log("MASTER PROP " + p.name);
-    //     const types = p.typeExpression.types;
-    //     if (!(types[0].definitions)) continue;
-    //     if (types[0].definitions.length === 0) continue;
-    //     const deff = types[0].definitions[0] as TsTypeInfo.InterfaceDefinition;
-    //     if (!deff.isInterfaceDefinition()) continue;
-    //     if (!deff.methods || deff.methods.length === 0) continue;
-    //     console.log("Deff ", deff);
-    //     const ofType = deff.methods[0].returnTypeExpression.text.toLowerCase();
-    //     appendLine(outputPath, `const ${ofType} = new Schema("${i.name}")`);
-    // }
-    // }
-    // for (let c of classes) {
-    var normVarName = classNameToNormalizr(collectType);
-    appendLine(outputPath, normVarName + ".define({");
-    mapClassMembers(collectClass, function (d, p) { return ("\t" + convertMethodName(p.name) + " : arrayOf(" + classNameToNormalizr(p.returnTypeExpression.types[0].typeArguments[0].text) + "),"); }, function (d, p) { return ("\t" + ((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "") + " : " + classNameToNormalizr(d.arguments[0].text) + ","); });
-    appendLine(outputPath, "});\n");
+    if (!collectClass) {
+        console.error("Cannot find type of Property " + p.name + ": " + collectType);
+    }
+    appendLine(outputPath, "export var " + classNameToNormalizr(collectType) + " = new Schema(\"" + p.name + "\");");
 };
 for (var _i = 0, _a = root.properties; _i < _a.length; _i++) {
     var p = _a[_i];
     var state_1 = _loop_1(p);
     if (state_1 === "continue") continue;
+}
+var _loop_2 = function(p) {
+    var dec = p.decorators.find(function (d) { return d.name === "queryBy"; });
+    if (!dec)
+        return "continue";
+    var whereClassName = dec.arguments[0].text;
+    if (!whereClassName)
+        return "continue";
+    var whereClass = modelFile.classes.find(function (c) { return c.name === whereClassName; });
+    if (!whereClass)
+        return "continue";
+    var collectType = p.typeExpression.text;
+    if (collectType.startsWith("Dict"))
+        collectType = collectType.replace("Dict<", "").replace(">", "");
+    console.log("collect:" + collectType);
+    var collectClass = modelFile.classes.find(function (c) { return c.name === collectType; });
+    if (!collectClass) {
+        console.error("Cannot find type of Property " + p.name + ": " + collectType);
+    }
+    appendLine(outputPath, getWhereInterface(whereClass));
+    appendLine(outputPath, getPrimitives(collectClass));
+    appendLine(outputPath, getQueryClass(collectClass, whereClassName));
+    appendLine(outputPath, getNestedClass(collectClass));
+    appendLine(outputPath, getNormalizrDefine(collectClass));
+};
+for (var _b = 0, _c = root.properties; _b < _c.length; _b++) {
+    var p = _c[_b];
+    var state_2 = _loop_2(p);
+    if (state_2 === "continue") continue;
 }
 console.log("Written File " + outputPath);
 //# sourceMappingURL=generate-query-classes.js.map

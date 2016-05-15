@@ -7,9 +7,5 @@
         "preserveConstEnums": true,
         "experimentalDecorators":true
     },
-	"files": [
-        "typings/main.d.ts",
-		"src/generate-query-classes.ts",
-        "src/test/test.ts"
-	]
+    "exclude":["node_modules","bin","src/test","typings/browser","typings/browser.d.ts","typings/tsd.d.ts"]
 }

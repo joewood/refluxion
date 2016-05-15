@@ -3,8 +3,6 @@ import { camelToUnderscore } from "common-ts/lib/core";
 import fs = require("fs");
 import * as Path from "path";
 
-
-
 function convertMethodName(name: string): string {
     const noGet = name.replace("get", "");
     return noGet.slice(0, 1).toLowerCase() + noGet.slice(1);
@@ -18,12 +16,14 @@ function appendLine(path: string, line: string) {
 function mapClassMembers(
     c: TsTypeInfo.ClassDefinition,
     hasMany: (d: TsTypeInfo.DecoratorDefinition, p: TsTypeInfo.ClassMethodDefinition) => string,
-    hasOne: (d: TsTypeInfo.DecoratorDefinition, p: TsTypeInfo.ClassPropertyDefinition) => string) {
+    hasOne: (d: TsTypeInfo.DecoratorDefinition, p: TsTypeInfo.ClassPropertyDefinition) => string)
+    : string {
+    let buffer = "";
     for (let p of c.methods || []) {
         if (!p.decorators || p.decorators.length === 0) continue;
         for (let d of p.decorators) {
             if (d.name === "hasMany") {
-                appendLine(outputPath, hasMany(d, p));
+                buffer += hasMany(d, p) + "\n";
             }
         }
     }
@@ -32,10 +32,11 @@ function mapClassMembers(
         for (let d of p.decorators) {
             if (d.name === "hasOne") {
                 if (d.arguments.length > 2) console.log("Prop " + p.name + " " + hasOne(d, p));
-                appendLine(outputPath, hasOne(d, p));
+                buffer += hasOne(d, p) + "\n";
             }
         }
     }
+    return buffer;
 }
 
 /** Convert the name of the class to the schema key name used for normalizr */
@@ -57,12 +58,42 @@ function getPrimitives(classDef: TsTypeInfo.ClassDefinition): string {
     return typeDef + "\n" + allProps + "\n\n";
 }
 
-function getQueryClass(c: TsTypeInfo.ClassDefinition, whereClass:string): string {
+function getQueryClass(c: TsTypeInfo.ClassDefinition, whereClass: string): string {
     let buffer = "";
     buffer += `export class ${c.name}Query extends Query {\n`;
     buffer += `\tconstructor( primitives: ${c.name}Primitives[], nested: ${c.name}Nested, where: ${whereClass}, options = {}) {
             super(primitives,nested as Dict<Query>,where);
          }\n`;
+    buffer += "}\n\n";
+    return buffer;
+}
+
+function getNestedClass(collectClass: TsTypeInfo.ClassDefinition): string {
+    let buffer = "";
+    buffer += `export interface ${collectClass.name}Nested {\n`;
+    buffer += mapClassMembers(collectClass,
+        (d, p) => `\t${convertMethodName(p.name)}?: ${p.returnTypeExpression.types[0].typeArguments[0].text}Query;`,
+        (d, p) => `\t${((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "")}?: ${d.arguments[0].text}Query;`
+    );
+    buffer += "}\n";
+    return buffer;
+}
+
+function getNormalizrDefine(collectClass: TsTypeInfo.ClassDefinition): string {
+    let buffer = "";
+    let normVarName = classNameToNormalizr(collectClass.name);
+    buffer += `${normVarName}.define({\n`;
+    buffer += mapClassMembers(collectClass,
+        (d, p) => `\t${convertMethodName(p.name)} : arrayOf(${classNameToNormalizr(p.returnTypeExpression.types[0].typeArguments[0].text)}),`,
+        (d, p) => `\t${((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "")} : ${classNameToNormalizr(d.arguments[0].text)},`);
+    buffer += "});\n";
+    return buffer;
+}
+
+function getWhereInterface(collectClass: TsTypeInfo.ClassDefinition): string {
+    let buffer = "";
+    buffer += `export interface ${collectClass.name} {\n`;
+    buffer += collectClass.properties.map(p => `\t${p.name}? : ${p.typeExpression.text};`).join('\n')+"\n";
     buffer += "}\n\n";
     return buffer;
 }
@@ -73,91 +104,68 @@ if (process.argv.length < 3) {
     process.exit();
 }
 
-const file = Path.resolve(process.cwd() + "/" + process.argv[2]);
+const inputFilenames = process.argv.slice(2).map(arg => Path.resolve(process.cwd() + "/" + arg));
+const mainFilename = inputFilenames[inputFilenames.length - 1];
+const outputFilename = mainFilename.replace(".ts", ".query.ts");
+const justFilename = Path.basename(mainFilename);
+const query_file = Path.resolve(process.cwd() + "/src/test/query.ts");
 
-const outputFile = file.replace(".ts", ".query.ts");
-const gd = TsTypeInfo.getInfoFromFiles([file]);
-
-
-const modelFile = gd.files.find(ff => Path.resolve(ff.fileName) === file);
+const gd = TsTypeInfo.getInfoFromFiles(inputFilenames);
+const modelFile = gd.files.find(ff => Path.resolve(ff.fileName) === mainFilename);
 const root = modelFile.classes.find(i => !!i.decorators.find(d => d.name === "root"));
 if (!root) {
     console.error("Cannot find a class with the decorator `root`")
 }
-console.log(`Processing ${file} for ${root.name}`);
+console.log(`Processing ${mainFilename} for ${root.name}`);
 
-const outputPath = outputFile;
+const outputPath = outputFilename;
 if (fs.existsSync(outputPath)) {
     fs.truncateSync(outputPath);
 }
-appendLine(outputPath, "import { Query } from \"./query\";");
+appendLine(outputPath, fs.readFileSync(query_file, "UTF8"));
+appendLine(outputPath, "\n\n");
 appendLine(outputPath, "import { normalize, Schema, arrayOf, valuesOf } from \"normalizr\";");
+appendLine(outputPath, `import * as Model from "./${justFilename}";`);
 
 for (let p of root.properties) {
     const dec = p.decorators.find(d => d.name === "queryBy");
     if (!dec) continue;
-    const whereTypeName = dec.arguments[0].text;
-    if (!whereTypeName) continue;
-    const whereInterface = modelFile.interfaces.find(c => c.name === whereTypeName);
-    if (!whereInterface) continue;
-    const collectType = p.typeExpression.text;
-    const collectClass = modelFile.classes.find( c=> c.name===collectType);
-    appendLine(outputPath, `export const ${classNameToNormalizr(p.typeExpression.text)} = new Schema(\"${p.name}\");`);
+    const whereClassName = dec.arguments[0].text;
+    if (!whereClassName) continue;
+    const whereClass = modelFile.classes.find(c => c.name === whereClassName);
+    if (!whereClass) continue;
 
+    let collectType = p.typeExpression.text;
+    if (collectType.startsWith("Dict")) collectType = collectType.replace("Dict<", "").replace(">", "");
+    console.log("collect:" + collectType);
+    const collectClass = modelFile.classes.find(c => c.name === collectType);
+    if (!collectClass) {
+        console.error(`Cannot find type of Property ${p.name}: ${collectType}`)
+    }
+    appendLine(outputPath, `export var ${classNameToNormalizr(collectType)} = new Schema(\"${p.name}\");`);
+}
+
+for (let p of root.properties) {
+    const dec = p.decorators.find(d => d.name === "queryBy");
+    if (!dec) continue;
+    const whereClassName = dec.arguments[0].text;
+    if (!whereClassName) continue;
+    const whereClass = modelFile.classes.find(c => c.name === whereClassName);
+    if (!whereClass) continue;
+
+    let collectType = p.typeExpression.text;
+    if (collectType.startsWith("Dict")) collectType = collectType.replace("Dict<", "").replace(">", "");
+    console.log("collect:" + collectType);
+    const collectClass = modelFile.classes.find(c => c.name === collectType);
+    if (!collectClass) {
+        console.error(`Cannot find type of Property ${p.name}: ${collectType}`)
+    }
+    appendLine(outputPath, getWhereInterface(whereClass));
     appendLine(outputPath, getPrimitives(collectClass));
-    appendLine(outputPath, getQueryClass(collectClass,whereTypeName));
-    
+    appendLine(outputPath, getQueryClass(collectClass, whereClassName));
+    appendLine(outputPath, getNestedClass(collectClass));
+    appendLine(outputPath, getNormalizrDefine(collectClass));
 
-
-    appendLine(outputPath, `export interface ${collectClass.name}Nested {`);
-    mapClassMembers(collectClass,
-        (d, p) => `\t${convertMethodName(p.name)}?: ${p.returnTypeExpression.types[0].typeArguments[0].text}Query;`,
-        (d, p) => `\t${((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "")}?: ${d.arguments[0].text}Query;`
-    );
-    appendLine(outputPath, "}\n");
-
-// find model master
-// for (let i of modelFile.interfaces) {
-//     if (i.name !== "ModelMaster") continue;
-//     appendLine(outputPath, "// Model Master For Normalizr");
-//     appendLine(outputPath, "export const user = new Schema(\"users\");");
-//     appendLine(outputPath, "export const qualification = new Schema(\"qualifications\");");
-//     appendLine(outputPath, "export const contract = new Schema(\"contracts\");");
-//     appendLine(outputPath, "export const assignment = new Schema(\"assignments\");");
-//     appendLine(outputPath, "export const site = new Schema(\"sites\");");
-//     appendLine(outputPath, "export const client = new Schema(\"clients\");");
-//     appendLine(outputPath, "export const agency = new Schema(\"agencies\");");
-//     appendLine(outputPath, "export const vendor = new Schema(\"vendors\");");
-//     appendLine(outputPath, "export const capability = new Schema(\"capabilities\");");
-//     appendLine(outputPath, "export const project = new Schema(\"projects\");");
-//     appendLine(outputPath, "export const job = new Schema(\"jobs\");");
-//     appendLine(outputPath, "export const jobRequirement = new Schema(\"jobRequirements\");");
-//     appendLine(outputPath, "export const availabilityEvent = new Schema(\"availabilityEvents\");");
-//     appendLine(outputPath, "export const userSite = new Schema(\"userSites\");");
-//     appendLine(outputPath, "export const timesheet = new Schema(\"timesheets\");");
-//     appendLine(outputPath, "");
-    // break;
-    // for (let p of i.properties) {
-    //     console.log("MASTER PROP " + p.name);
-    //     const types = p.typeExpression.types;
-    //     if (!(types[0].definitions)) continue;
-    //     if (types[0].definitions.length === 0) continue;
-    //     const deff = types[0].definitions[0] as TsTypeInfo.InterfaceDefinition;
-    //     if (!deff.isInterfaceDefinition()) continue;
-    //     if (!deff.methods || deff.methods.length === 0) continue;
-    //     console.log("Deff ", deff);
-    //     const ofType = deff.methods[0].returnTypeExpression.text.toLowerCase();
-    //     appendLine(outputPath, `const ${ofType} = new Schema("${i.name}")`);
-    // }
-// }
-
-// for (let c of classes) {
-    let normVarName = classNameToNormalizr(collectType);
-    appendLine(outputPath, `${normVarName}.define({`);
-    mapClassMembers(collectClass,
-        (d, p) => `\t${convertMethodName(p.name)} : arrayOf(${classNameToNormalizr(p.returnTypeExpression.types[0].typeArguments[0].text)}),`,
-        (d, p) => `\t${((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "")} : ${classNameToNormalizr(d.arguments[0].text)},`);
-    appendLine(outputPath, "});\n");
 }
 console.log("Written File " + outputPath);
 

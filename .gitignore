@@ -1,2 +1,4 @@
 node_modules
 bin/**/*.map
+src/test/refluxion
+src/test/server

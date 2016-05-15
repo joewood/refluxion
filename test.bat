@@ -1,5 +1,6 @@
 call tsc -p .
-call node bin/generate-query-classes.js ./src/test/test-model.ts
+call node bin/generate-query-classes.js typings/main/ambient/core-js/index.d.ts ./src/test/test-model.ts
+call tsc -p src/test
 rem call node bin/generate-query-classes.js ../spa/src/service/model.ts
-call node bin/test/test.js
+call node src/test/refluxion/src/test/test.js
 
