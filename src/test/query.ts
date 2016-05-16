@@ -28,6 +28,6 @@ export function toGraphQlQueryString(operation: string, query: Query | string): 
 }
 
 export interface GraphQLWhere {
-    offset?: number;
-    limit?: number;
+    offset: number;
+    limit: number;
 }

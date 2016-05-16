@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "description": "Experimental Tool to generate Reudx and GraphQL classes from TypeScript model",
   "main": "bin/index.js",
+  "bin": {
+    "refluxion" : "./bin/refluxion"
+  },
+  "typings": "./bin/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

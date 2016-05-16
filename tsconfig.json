@@ -5,6 +5,7 @@
         "module": "commonjs",
         "sourceMap": true,
         "preserveConstEnums": true,
+        "declaration": true,
         "experimentalDecorators":true
     },
     "exclude":["node_modules","bin","src/test","typings/browser","typings/browser.d.ts","typings/tsd.d.ts"]

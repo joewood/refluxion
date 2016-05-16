@@ -1,4 +1,3 @@
-/// <reference path="../../typings/main.d.ts">
 import * as Moment from "moment";
 import * as Entities from "../../../server/src/server/entities";
 import {maxBy, minBy, values } from "common-ts/lib/core";

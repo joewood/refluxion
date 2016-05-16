@@ -60,7 +60,7 @@ function getPrimitives(classDef) {
 function getQueryClass(c, whereClass) {
     var buffer = "";
     buffer += "export class " + c.name + "Query extends Query {\n";
-    buffer += "\tconstructor( primitives: " + c.name + "Primitives[], nested: " + c.name + "Nested, where: " + whereClass + ", options = {}) {\n            super(primitives,nested as Dict<Query>,where);\n         }\n";
+    buffer += "\tconstructor( primitives: " + c.name + "Primitives[], nested: " + c.name + "Nested, where: " + whereClass + "=null, options = {}) {\n            super(primitives,nested as Dict<Query>,where);\n         }\n";
     buffer += "}\n\n";
     return buffer;
 }
@@ -81,7 +81,7 @@ function getNormalizrDefine(collectClass) {
 }
 function getWhereInterface(collectClass) {
     var buffer = "";
-    buffer += "export interface " + collectClass.name + " {\n";
+    buffer += "export interface " + collectClass.name + " extends GraphQLWhere {\n";
     buffer += collectClass.properties.map(function (p) { return ("\t" + p.name + "? : " + p.typeExpression.text + ";"); }).join('\n') + "\n";
     buffer += "}\n\n";
     return buffer;
@@ -95,7 +95,6 @@ var inputFilenames = process.argv.slice(2).map(function (arg) { return Path.reso
 var mainFilename = inputFilenames[inputFilenames.length - 1];
 var outputFilename = mainFilename.replace(".ts", ".query.ts");
 var justFilename = Path.basename(mainFilename);
-var query_file = Path.resolve(process.cwd() + "/src/test/query.ts");
 var gd = TsTypeInfo.getInfoFromFiles(inputFilenames);
 var modelFile = gd.files.find(function (ff) { return Path.resolve(ff.fileName) === mainFilename; });
 var root = modelFile.classes.find(function (i) { return !!i.decorators.find(function (d) { return d.name === "root"; }); });
@@ -107,8 +106,7 @@ var outputPath = outputFilename;
 if (fs.existsSync(outputPath)) {
     fs.truncateSync(outputPath);
 }
-appendLine(outputPath, fs.readFileSync(query_file, "UTF8"));
-appendLine(outputPath, "\n\n");
+appendLine(outputPath, "import { Query, GraphQLWhere } from \"refluxion\"");
 appendLine(outputPath, "import { normalize, Schema, arrayOf, valuesOf } from \"normalizr\";");
 appendLine(outputPath, "import * as Model from \"./" + justFilename + "\";");
 var _loop_1 = function(p) {

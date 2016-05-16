@@ -15,4 +15,7 @@ function queryBy(fn) {
     return function (target, key, descriptor) { return descriptor; };
 }
 exports.queryBy = queryBy;
+var query_1 = require("./test/query");
+exports.toGraphQlQueryString = query_1.toGraphQlQueryString;
+exports.Query = query_1.Query;
 //# sourceMappingURL=index.js.map

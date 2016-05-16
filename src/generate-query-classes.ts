@@ -61,7 +61,7 @@ function getPrimitives(classDef: TsTypeInfo.ClassDefinition): string {
 function getQueryClass(c: TsTypeInfo.ClassDefinition, whereClass: string): string {
     let buffer = "";
     buffer += `export class ${c.name}Query extends Query {\n`;
-    buffer += `\tconstructor( primitives: ${c.name}Primitives[], nested: ${c.name}Nested, where: ${whereClass}, options = {}) {
+    buffer += `\tconstructor( primitives: ${c.name}Primitives[], nested: ${c.name}Nested, where: ${whereClass}=null, options = {}) {
             super(primitives,nested as Dict<Query>,where);
          }\n`;
     buffer += "}\n\n";
@@ -92,7 +92,7 @@ function getNormalizrDefine(collectClass: TsTypeInfo.ClassDefinition): string {
 
 function getWhereInterface(collectClass: TsTypeInfo.ClassDefinition): string {
     let buffer = "";
-    buffer += `export interface ${collectClass.name} {\n`;
+    buffer += `export interface ${collectClass.name} extends GraphQLWhere {\n`;
     buffer += collectClass.properties.map(p => `\t${p.name}? : ${p.typeExpression.text};`).join('\n')+"\n";
     buffer += "}\n\n";
     return buffer;
@@ -108,7 +108,6 @@ const inputFilenames = process.argv.slice(2).map(arg => Path.resolve(process.cwd
 const mainFilename = inputFilenames[inputFilenames.length - 1];
 const outputFilename = mainFilename.replace(".ts", ".query.ts");
 const justFilename = Path.basename(mainFilename);
-const query_file = Path.resolve(process.cwd() + "/src/test/query.ts");
 
 const gd = TsTypeInfo.getInfoFromFiles(inputFilenames);
 const modelFile = gd.files.find(ff => Path.resolve(ff.fileName) === mainFilename);
@@ -122,8 +121,7 @@ const outputPath = outputFilename;
 if (fs.existsSync(outputPath)) {
     fs.truncateSync(outputPath);
 }
-appendLine(outputPath, fs.readFileSync(query_file, "UTF8"));
-appendLine(outputPath, "\n\n");
+appendLine(outputPath, "import { Query, GraphQLWhere } from \"refluxion\"");
 appendLine(outputPath, "import { normalize, Schema, arrayOf, valuesOf } from \"normalizr\";");
 appendLine(outputPath, `import * as Model from "./${justFilename}";`);
 
