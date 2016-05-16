@@ -7,6 +7,6 @@ export declare class Query {
 }
 export declare function toGraphQlQueryString(operation: string, query: Query | string): string;
 export interface GraphQLWhere {
-    offset: number;
-    limit: number;
+    offset?: number;
+    limit?: number;
 }

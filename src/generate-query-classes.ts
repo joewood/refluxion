@@ -61,7 +61,7 @@ function getPrimitives(classDef: TsTypeInfo.ClassDefinition): string {
 function getQueryClass(c: TsTypeInfo.ClassDefinition, whereClass: string): string {
     let buffer = "";
     buffer += `export class ${c.name}Query extends Query {\n`;
-    buffer += `\tconstructor( primitives: ${c.name}Primitives[], nested: ${c.name}Nested, where: ${whereClass}=null, options = {}) {
+    buffer += `\tconstructor( primitives: ${c.name}Primitives[], nested: ${c.name}Nested = null, where: ${whereClass} | {id:string} = null, options = {}) {
             super(primitives,nested as Dict<Query>,where);
          }\n`;
     buffer += "}\n\n";

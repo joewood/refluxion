@@ -12,7 +12,8 @@ function root(construc) {
 }
 exports.root = root;
 function queryBy(fn) {
-    return function (target, key, descriptor) { return descriptor; };
+    return null;
+    // return function(target: any, key, descriptor: PropertyDescriptor) : PropertyDescriptor { return descriptor; }; 
 }
 exports.queryBy = queryBy;
 var query_1 = require("./test/query");

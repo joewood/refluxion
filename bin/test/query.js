@@ -12,7 +12,7 @@ var Query = (function () {
         var _this = this;
         if (tabSize === void 0) { tabSize = 1; }
         var buffer = "\t";
-        if (!!this.where || Object.keys(this.where).length > 0) {
+        if (!!this.where && Object.keys(this.where).length > 0) {
             var whereClause = util.inspect(this.where, 10).replace(/\'/g, "\"");
             buffer = buffer + ("(" + whereClause.slice(1, whereClause.length - 2) + ") ");
         }

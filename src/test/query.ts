@@ -7,7 +7,7 @@ export class Query {
 
     public toGraphQL(tabSize = 1): string {
         let buffer = "\t";
-        if (!!this.where || Object.keys(this.where).length > 0) {
+        if (!!this.where && Object.keys(this.where).length > 0) {
             const whereClause = (util.inspect(this.where, 10) as string).replace(/\'/g, "\"");
             buffer = buffer + `(${whereClause.slice(1, whereClause.length - 2)}) `;
         }
@@ -28,6 +28,6 @@ export function toGraphQlQueryString(operation: string, query: Query | string): 
 }
 
 export interface GraphQLWhere {
-    offset: number;
-    limit: number;
+    offset?: number;
+    limit?: number;
 }

@@ -60,7 +60,7 @@ function getPrimitives(classDef) {
 function getQueryClass(c, whereClass) {
     var buffer = "";
     buffer += "export class " + c.name + "Query extends Query {\n";
-    buffer += "\tconstructor( primitives: " + c.name + "Primitives[], nested: " + c.name + "Nested, where: " + whereClass + "=null, options = {}) {\n            super(primitives,nested as Dict<Query>,where);\n         }\n";
+    buffer += "\tconstructor( primitives: " + c.name + "Primitives[], nested: " + c.name + "Nested = null, where: " + whereClass + " | {id:string} = null, options = {}) {\n            super(primitives,nested as Dict<Query>,where);\n         }\n";
     buffer += "}\n\n";
     return buffer;
 }

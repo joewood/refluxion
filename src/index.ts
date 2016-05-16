@@ -10,7 +10,8 @@ export function root(construc: Function) {
 }
 
 export function queryBy(fn:Function) {
-    return function(target: any, key: string, descriptor: PropertyDescriptor) { return descriptor; }; 
+    return null;
+    // return function(target: any, key, descriptor: PropertyDescriptor) : PropertyDescriptor { return descriptor; }; 
 }
 
 export { toGraphQlQueryString, GraphQLWhere, Query } from "./test/query";
