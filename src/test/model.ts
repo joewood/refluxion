@@ -13,10 +13,11 @@ function hasOne<T>(c: { new (x: any): T }, relative: (master: ModelMaster) => Di
 function root(construc: Function) {
 }
 
-
 function queryBy(fn:Function) {
     return (target: any, key: string, descriptor: PropertyDescriptor) => descriptor; 
 }
+
+
 
 interface IUserWhere {
     namedLike?:string;

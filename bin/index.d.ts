@@ -3,3 +3,5 @@ export declare function createHasOne<M>(): <T>(c: new (x: any) => T, relative: (
 export declare function root(construc: Function): void;
 export declare function queryBy(fn: Function): any;
 export { toGraphQlQueryString, GraphQLWhere, Query } from "./test/query";
+export declare function integer(): any;
+export declare function useTable(tableName: string): any;

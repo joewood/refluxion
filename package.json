@@ -4,7 +4,7 @@
   "description": "Experimental Tool to generate Reudx and GraphQL classes from TypeScript model",
   "main": "bin/index.js",
   "bin": {
-    "refluxion" : "./bin/refluxion"
+    "refluxion": "./bin/refluxion"
   },
   "typings": "./bin/index.d.ts",
   "scripts": {
@@ -26,10 +26,11 @@
     "typescript": "^1.8.10"
   },
   "dependencies": {
+    "commander": "^2.9.0",
     "core-js": "^2.4.0",
-    "lodash": "^4.12.0",
+    "lodash": "^4.13.1",
     "node-util": "0.0.1",
     "normalizr": "^2.1.0",
-    "ts-type-info": "^3.1.0"
+    "ts-type-info": "^3.1.1"
   }
 }

@@ -1,0 +1,53 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "C:\\code\\refluxion\\node_modules\\ts-type-info\\typings.json",
+    "raw": "npm:ts-type-info",
+    "main": "ts-type-info.d.ts",
+    "version": "3.1.1",
+    "global": false,
+    "dependencies": {
+      "code-block-writer": {
+        "src": "C:\\code\\refluxion\\node_modules\\code-block-writer\\typings.json",
+        "raw": "npm:code-block-writer",
+        "main": "code-block-writer.d.ts",
+        "version": "3.2.0",
+        "global": false,
+        "name": "code-block-writer"
+      },
+      "tmp": {
+        "src": "C:\\code\\refluxion\\node_modules\\tmp\\package.json",
+        "raw": "npm:tmp",
+        "main": "lib/tmp.js",
+        "version": "0.0.28",
+        "global": false,
+        "dependencies": {
+          "os-tmpdir": {
+            "src": "C:\\code\\refluxion\\node_modules\\os-tmpdir\\package.json",
+            "raw": "npm:os-tmpdir",
+            "version": "1.0.1",
+            "global": false,
+            "name": "os-tmpdir"
+          }
+        },
+        "name": "tmp"
+      },
+      "typescript": {
+        "src": "C:\\code\\refluxion\\node_modules\\typescript\\package.json",
+        "raw": "npm:typescript",
+        "main": "./lib/typescript.js",
+        "browser": {
+          "buffer": false,
+          "fs": false,
+          "os": false,
+          "path": false
+        },
+        "typings": "./lib/typescript.d.ts",
+        "version": "1.8.10",
+        "global": false,
+        "name": "typescript"
+      }
+    },
+    "name": "ts-type-info"
+  }
+}

@@ -19,4 +19,12 @@ exports.queryBy = queryBy;
 var query_1 = require("./test/query");
 exports.toGraphQlQueryString = query_1.toGraphQlQueryString;
 exports.Query = query_1.Query;
+function integer() {
+    return null;
+}
+exports.integer = integer;
+function useTable(tableName) {
+    return null;
+}
+exports.useTable = useTable;
 //# sourceMappingURL=index.js.map

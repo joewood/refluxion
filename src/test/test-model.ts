@@ -2,9 +2,11 @@ import * as Moment from "moment";
 import * as Entities from "../../../server/src/server/entities";
 import {maxBy, minBy, values } from "common-ts/lib/core";
 
-import { hasMany, createHasOne, root, queryBy } from "../index";
+import { integer, hasMany, createHasOne, root, queryBy } from "../index";
 
 const hasOne = createHasOne<MyModel>();
+
+
 
 
 // Define the root of the model. This serves as the root end-point on the server and the state of the app in Redux
@@ -61,6 +63,9 @@ export class CommentsWhere {
 export class User {
     public email: string;
     public id: string;
+
+    @integer()
+    public numberComments: number;
 
     @hasMany
     public getArticles(articles: Article[]): Article[] {
