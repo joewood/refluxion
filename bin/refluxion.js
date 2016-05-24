@@ -1,5 +1,6 @@
 "use strict";
 var TsTypeInfo = require("ts-type-info");
+var fs = require("fs");
 var Path = require("path");
 var path = require("path");
 var helpers_1 = require("./helpers");
@@ -22,9 +23,21 @@ program.version("0.0.1")
     .option("-r, --redux", "Generate redux support file")
     .command("refluxion <options> [dependent-files.ts] <file.ts>", "Specify input files to be processed for reflection.")
     .parse(process.argv);
+var rawOutput = program["output"];
+if (!fs.existsSync(rawOutput)) {
+    console.error("Cannot find output dir " + path.resolve(rawOutput));
+    process.exit(0);
+}
+var rawInputs = program.args;
+rawInputs.forEach(function (ri) {
+    if (!fs.existsSync(ri)) {
+        console.error("Cannot find input file " + path.resolve(ri));
+        process.exit(0);
+    }
+});
 var inputFilenames = program.args; // process.argv.slice(3).map(arg => Path.resolve(process.cwd() + "/" + arg));
 var mainFilename = Path.resolve(inputFilenames[inputFilenames.length - 1]);
-var outputFilename = path.resolve(program["output"]);
+var outputFilename = path.resolve(rawOutput);
 var justFilename = Path.basename(mainFilename);
 var clientQl = !!program["clientQl"];
 var interfaces = !!program["interfaces"];
@@ -75,8 +88,6 @@ if (interfaces) {
 if (graphql) {
     var outputPath_3 = helpers_1.initializeFile(outputFilename + "/model.graphql.ts");
     writtenFiles.push(outputPath_3);
-    helpers_1.appendLine(outputPath_3, generate_interfaces_1.generateInterfaceForClass(root, "", false));
-    helpers_1.appendLine(outputPath_3, generate_interfaces_1.generateInterfaceForClass(root, "Lists", true));
     helpers_1.appendLine(outputPath_3, 'import * as GraphQL from "graphql";');
     helpers_1.appendLine(outputPath_3, 'var graphqlSeq = require("graphql-sequelize");');
     helpers_1.appendLine(outputPath_3, 'let {resolver, attributeFields, defaultListArgs, defaultArgs} = graphqlSeq;');
@@ -93,10 +104,15 @@ if (graphql) {
     });
     helpers_1.appendLine(outputPath_3, "\treturn types;\n}\n");
     helpers_1.iterateRoot(modelFile, root, function (p, collectClass, whereClass) {
-        helpers_1.appendLine(outputPath_3, graphql_generators_1.generateWhereClass(p, collectClass, whereClass) + "\n");
+        helpers_1.appendLine(outputPath_3, graphql_generators_1.generateGraphQLArgs(p, collectClass, whereClass) + "\n");
     });
     helpers_1.iterateRoot(modelFile, root, function (p, collectClass, whereClass) {
-        helpers_1.appendLine(outputPath_3, graphql_generators_1.generateGraphQLEndPoints(p, collectClass, whereClass) + "\n");
+        if (p.decorators.find(function (d) { return d.name === "hasTable"; })) {
+            helpers_1.appendLine(outputPath_3, graphql_generators_1.generateGraphQLEndPoints(p, collectClass, whereClass) + "\n");
+        }
+    });
+    helpers_1.iterateRoot(modelFile, root, function (p, collectClass, whereClass) {
+        helpers_1.appendLine(outputPath_3, generate_interfaces_1.generateWhereInterface(whereClass));
     });
 }
 console.log("Writen Files:\n" + writtenFiles.join("\n"));

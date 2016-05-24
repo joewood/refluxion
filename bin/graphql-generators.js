@@ -33,7 +33,7 @@ function getInnerWhereClass(ps) {
     }
     return buffer;
 }
-function generateWhereClass(p, collectClass, whereClass) {
+function generateGraphQLArgs(p, collectClass, whereClass) {
     var buffer = "";
     buffer += "export const " + p.name + "Args : GraphQL.GraphQLFieldConfigArgumentMap = {\n";
     buffer += getInnerWhereClass(whereClass.properties.map(function (pp) { return pp; }));
@@ -43,7 +43,7 @@ function generateWhereClass(p, collectClass, whereClass) {
     buffer += "};\n";
     return buffer;
 }
-exports.generateWhereClass = generateWhereClass;
+exports.generateGraphQLArgs = generateGraphQLArgs;
 function generateGraphQLAttributes(p, collectClass, whereClass) {
     var buffer = "";
     buffer += "\t types." + helpers_1.toCamel(collectClass.name) + "Type = new GraphQL.GraphQLObjectType({\n";

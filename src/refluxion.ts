@@ -5,14 +5,14 @@ import * as Path from "path";
 import path = require("path");
 
 import { initializeFile, appendLine, convertMethodName, getDictReturnType, removePrefixI, toCamel, mapClassMembers, iterateRoot} from "./helpers";
-import {generateGraphQLAttributes, generateGraphQLEndPoints, generateWhereClass} from "./graphql-generators";
+import {generateGraphQLAttributes, generateGraphQLEndPoints, generateGraphQLArgs} from "./graphql-generators";
 import {generateNormalizrDefine} from "./normalizr-generators";
 import {getPrimitives, getQueryClass} from "./graphql-client-generators";
 import {generateInterfaceForClass, generateNestedClass, generateWhereInterface} from "./generate-interfaces";
 
 import * as program from "commander";
 
-function inputFiles(val: string,memo:string[]) {
+function inputFiles(val: string, memo: string[]) {
     memo.push(val);
     return memo;
 }
@@ -28,9 +28,24 @@ program.version("0.0.1")
     .command("refluxion <options> [dependent-files.ts] <file.ts>", "Specify input files to be processed for reflection.")
     .parse(process.argv);
 
+
+const rawOutput = program["output"];
+if (!fs.existsSync(rawOutput)) {
+    console.error("Cannot find output dir " + path.resolve(rawOutput));
+    process.exit(0);
+}
+
+const rawInputs = program.args;
+rawInputs.forEach(ri => {
+    if (!fs.existsSync(ri)) {
+        console.error("Cannot find input file " + path.resolve(ri));
+        process.exit(0);
+    }
+})
+
 const inputFilenames = program.args; // process.argv.slice(3).map(arg => Path.resolve(process.cwd() + "/" + arg));
 const mainFilename = Path.resolve(inputFilenames[inputFilenames.length - 1]);
-const outputFilename = path.resolve(program["output"]);
+const outputFilename = path.resolve(rawOutput);
 const justFilename = Path.basename(mainFilename);
 const clientQl = !!program["clientQl"];
 const interfaces = !!program["interfaces"];
@@ -40,7 +55,8 @@ const sequelize = !!program["sequelze"];
 const redux = !!program["redux"];
 const writtenFiles = [] as string[];
 
-console.log("Using Model File:"  + mainFilename);
+
+console.log("Using Model File:" + mainFilename);
 
 const gd = TsTypeInfo.getInfoFromFiles(inputFilenames);
 
@@ -88,23 +104,11 @@ if (interfaces) {
     appendLine(outputPath, generateInterfaceForClass(root, "", false));
     appendLine(outputPath, generateInterfaceForClass(root, "Lists", true));
 
-    // iterateRoot(modelFile, root, (p, collectClass, whereClass) => {
-    //     appendLine(outputPath, generateWhereInterface(whereClass));
-    //     appendLine(outputPath, getPrimitives(collectClass));
-    //     appendLine(outputPath, getQueryClass(collectClass, whereClass.name));
-    //     appendLine(outputPath, generateNestedClass(collectClass));
-    //     appendLine(outputPath, generateNormalizrDefine(collectClass));
-    // });
-
 }
 
 if (graphql) {
     const outputPath = initializeFile(outputFilename + "/model.graphql.ts");
     writtenFiles.push(outputPath);
-    
-    appendLine(outputPath, generateInterfaceForClass(root, "", false));
-    appendLine(outputPath, generateInterfaceForClass(root, "Lists", true));
-
 
     appendLine(outputPath, 'import * as GraphQL from "graphql";');
     appendLine(outputPath, 'var graphqlSeq = require("graphql-sequelize");');
@@ -125,13 +129,18 @@ if (graphql) {
     appendLine(outputPath, "\treturn types;\n}\n");
 
     iterateRoot(modelFile, root, (p, collectClass, whereClass) => {
-        appendLine(outputPath, generateWhereClass(p, collectClass, whereClass) + "\n");
+        appendLine(outputPath, generateGraphQLArgs(p, collectClass, whereClass) + "\n");
     });
 
     iterateRoot(modelFile, root, (p, collectClass, whereClass) => {
-        appendLine(outputPath, generateGraphQLEndPoints(p, collectClass, whereClass) + "\n");
+        if (p.decorators.find(d => d.name === "hasTable")) {
+            appendLine(outputPath, generateGraphQLEndPoints(p, collectClass, whereClass) + "\n");
+        }
     });
-
+    
+    iterateRoot(modelFile, root, (p, collectClass, whereClass) => {
+        appendLine(outputPath, generateWhereInterface(whereClass));
+    });
 }
 console.log("Writen Files:\n" + writtenFiles.join("\n"));
 

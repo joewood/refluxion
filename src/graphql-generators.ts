@@ -36,7 +36,7 @@ function getInnerWhereClass(ps: TsTypeInfo.PropertyDefinitions[]) {
     return buffer;
 }
 
-export function generateWhereClass(p: TsTypeInfo.ClassPropertyDefinition, collectClass: TsTypeInfo.ClassDefinition, whereClass: TsTypeInfo.ClassDefinition): string {
+export function generateGraphQLArgs(p: TsTypeInfo.ClassPropertyDefinition, collectClass: TsTypeInfo.ClassDefinition, whereClass: TsTypeInfo.ClassDefinition): string {
     let buffer = "";
     buffer += `export const ${p.name}Args : GraphQL.GraphQLFieldConfigArgumentMap = {\n`;
     buffer += getInnerWhereClass(whereClass.properties.map(pp => pp));
