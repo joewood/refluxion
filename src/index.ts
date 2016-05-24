@@ -23,3 +23,8 @@ export function integer() {
 export function useTable(tableName:string) {
     return null;
 }
+
+/** Use this decorator to indicate that the field should map to the backend as a DATE field, but presented as an ISO Date String */
+export function isIsoDate() {
+    return null;
+}

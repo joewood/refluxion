@@ -27,4 +27,9 @@ function useTable(tableName) {
     return null;
 }
 exports.useTable = useTable;
+/** Use this decorator to indicate that the field should map to the backend as a DATE field, but presented as an ISO Date String */
+function isIsoDate() {
+    return null;
+}
+exports.isIsoDate = isIsoDate;
 //# sourceMappingURL=index.js.map

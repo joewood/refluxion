@@ -12,6 +12,9 @@ function getGraphQLTypeofProp(p: TsTypeInfo.BasePropertyDefinition): string {
         return "GraphQL.GraphQLInt";
     }
     const decs = (p as TsTypeInfo.ClassPropertyDefinition).decorators;
+    if (decs && decs.find( d=> d.name==="isIsoDate")) {
+        return "GraphQLDate";
+    }
     switch (p.typeExpression.text) {
         case "boolean":
             return "GraphQL.GraphQLBoolean";
@@ -24,11 +27,11 @@ function getGraphQLTypeofProp(p: TsTypeInfo.BasePropertyDefinition): string {
     }
 }
 
-function getInnerWhereClass(ps: TsTypeInfo.PropertyDefinitions[]) {
+function getInnerWhereClass(ps: TsTypeInfo.PropertyDefinitions[], suffix:string) {
     let buffer = "";
     for (let p of ps) {
         if (p.typeExpression.text.startsWith("{")) {
-            buffer += `\t ${p.name} : { type: new GraphQL.GraphQLInputObjectType({ fields: {\n ${getInnerWhereClass(p.typeExpression.types[0].properties)}} })},\n`
+            buffer += `\t ${p.name} : { type: new GraphQL.GraphQLInputObjectType({ name:"${p.name+"_"+suffix}", fields: {\n ${getInnerWhereClass(p.typeExpression.types[0].properties,suffix)}} })},\n`
         } else {
             buffer += `\t ${p.name} : { type: ${getGraphQLTypeofProp(p)}},\n`
         }
@@ -39,7 +42,7 @@ function getInnerWhereClass(ps: TsTypeInfo.PropertyDefinitions[]) {
 export function generateGraphQLArgs(p: TsTypeInfo.ClassPropertyDefinition, collectClass: TsTypeInfo.ClassDefinition, whereClass: TsTypeInfo.ClassDefinition): string {
     let buffer = "";
     buffer += `export const ${p.name}Args : GraphQL.GraphQLFieldConfigArgumentMap = {\n`;
-    buffer += getInnerWhereClass(whereClass.properties.map(pp => pp));
+    buffer += getInnerWhereClass(whereClass.properties.map(pp => pp),p.name);
     buffer += "\t limit: { type: GraphQL.GraphQLInt },\n";
     buffer += "\t offset: { type: GraphQL.GraphQLInt },\n";
     buffer += "\t order: { type: GraphQL.GraphQLString },\n";
@@ -53,19 +56,21 @@ export function generateGraphQLAttributes(p: TsTypeInfo.ClassPropertyDefinition,
     buffer += `\t\t name: "${collectClass.name}",\n`;
     //"${collectClass.name}",\n`;
     buffer += `\t\t fields: () => ({\n`;
+    buffer += `\t\t\t id : { type : GraphQL.GraphQLString  },\n`;
     for (let p of collectClass.properties) {
         buffer += `\t\t\t ${p.name} : { type : ${getGraphQLTypeofProp(p)} },\n`;
     }
     buffer += mapClassMembers(collectClass,
-        (d, p) => `\t\t ${convertMethodName(p.name)} : {\n` +
-            `\t\t\t type: new GraphQL.GraphQLList(types.${toCamel(getDictReturnType(p))}Type),\n` +
-            `\t\t\t resolve: resolver(Seq.tables.${removePrefixI(collectClass)}.associations.${convertMethodName(p.name)}),\n` +
-            `\t\t },\n`,
-        (d, p) => `\t ${((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "")} : {\n` +
-            `\t\t type: types.${toCamel(d.arguments[0].text)}Type,\n` +
-            `\t},\n`);
+        (d, p) => `\t\t\t ${convertMethodName(p.name)} : {\n` +
+            `\t\t\t\t type: new GraphQL.GraphQLList(types.${toCamel(getDictReturnType(p))}Type),\n` +
+            `\t\t\t\t resolve: resolver(Seq.tables.${removePrefixI(collectClass)}.associations.${convertMethodName(p.name)}),\n` +
+            `\t\t\t },\n`,
+        (d, p) => `\t\t\t ${((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "")} : {\n` +
+            `\t\t\t\t type: types.${toCamel(d.arguments[0].text)}Type,\n` +
+            `\t\t\t\t resolve: resolver(Seq.tables.${removePrefixI(d.arguments[0].text)}),\n` +
+            `\t\t\t},\n`);
     buffer += "\t\t})\n";
-    buffer += "\t});\n\n";
+    buffer += "\t});\n";
     return buffer;
 }
 

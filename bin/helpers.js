@@ -1,4 +1,5 @@
 "use strict";
+var TsTypeInfo = require("ts-type-info");
 var fs = require("fs");
 var Path = require("path");
 /** Convert the name of the class to the schema key name used for normalizr */
@@ -25,10 +26,17 @@ function getDictReturnType(p) {
 }
 exports.getDictReturnType = getDictReturnType;
 function removePrefixI(c) {
-    if (c.name.startsWith("I"))
-        return c.name.slice(1);
+    var name = "";
+    if (c instanceof TsTypeInfo.ClassDefinition) {
+        name = c.name;
+    }
+    else {
+        name = c;
+    }
+    if (name.startsWith("I"))
+        return name.slice(1);
     else
-        return c.name;
+        return name;
 }
 exports.removePrefixI = removePrefixI;
 /** For a specific class, for each many relationship add the specified line through the callback, same for each one-to-one */
@@ -52,8 +60,6 @@ function mapClassMembers(c, hasMany, hasOne) {
         for (var _f = 0, _g = p.decorators; _f < _g.length; _f++) {
             var d = _g[_f];
             if (d.name === "hasOne") {
-                if (d.arguments.length > 2)
-                    console.log("Prop " + p.name + " " + hasOne(d, p));
                 buffer += hasOne(d, p) + "\n";
             }
         }

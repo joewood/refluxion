@@ -25,9 +25,15 @@ export function getDictReturnType(p: TsTypeInfo.ClassMethodDefinition): string {
     return p.returnTypeExpression.types[0].typeArguments[0].text;
 }
 
-export function removePrefixI(c: TsTypeInfo.ClassDefinition): string {
-    if (c.name.startsWith("I")) return c.name.slice(1);
-    else return c.name;
+export function removePrefixI(c: TsTypeInfo.ClassDefinition | string): string {
+    let name = "";
+    if (c instanceof TsTypeInfo.ClassDefinition) {
+        name = c.name;
+    } else {
+        name = c;
+    }
+    if (name.startsWith("I")) return name.slice(1);
+    else return name;
 }
 
 /** For a specific class, for each many relationship add the specified line through the callback, same for each one-to-one */
@@ -49,7 +55,6 @@ export function mapClassMembers(
         if (!p.decorators || p.decorators.length === 0) continue;
         for (let d of p.decorators) {
             if (d.name === "hasOne") {
-                if (d.arguments.length > 2) console.log("Prop " + p.name + " " + hasOne(d, p));
                 buffer += hasOne(d, p) + "\n";
             }
         }
@@ -79,7 +84,7 @@ export function iterateRoot(modelFile: TsTypeInfo.FileDefinition, _root: TsTypeI
 }
 
 
-export function initializeFile(filename: string) : string {
+export function initializeFile(filename: string): string {
     if (fs.existsSync(filename)) {
         fs.truncateSync(filename);
     }

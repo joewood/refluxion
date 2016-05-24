@@ -114,6 +114,7 @@ if (graphql) {
     appendLine(outputPath, 'var graphqlSeq = require("graphql-sequelize");');
     appendLine(outputPath, 'let {resolver, attributeFields, defaultListArgs, defaultArgs} = graphqlSeq;');
     appendLine(outputPath, 'import SequelizeModel from "./sequelize-model";');
+    appendLine(outputPath, 'import {GraphQLDate} from "./graphql-date";');
     appendLine(outputPath, 'export interface GraphQLTypes {');
     iterateRoot(modelFile, root, (p2, collectClass2, whereClass2) => {
         appendLine(outputPath, `\t${toCamel(collectClass2.name)}Type ?: GraphQL.GraphQLObjectType;`);
@@ -133,10 +134,11 @@ if (graphql) {
     });
 
     iterateRoot(modelFile, root, (p, collectClass, whereClass) => {
-        if (p.decorators.find(d => d.name === "hasTable")) {
+        if (p.decorators.find(d => d.name === "useTable")) {
             appendLine(outputPath, generateGraphQLEndPoints(p, collectClass, whereClass) + "\n");
         }
     });
+    appendLine(outputPath,"export interface GraphQLWhere {}\n");
     
     iterateRoot(modelFile, root, (p, collectClass, whereClass) => {
         appendLine(outputPath, generateWhereInterface(whereClass));

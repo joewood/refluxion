@@ -1,8 +1,5 @@
 {
-  "dependencies": {
-    "moment": "registry:npm/moment#2.10.5+20160211003958",
-    "ts-type-info": "npm:ts-type-info"
-  },
+  "dependencies": {},
   "ambientDependencies": {
     "normalizr": "registry:dt/normalizr#2.0.1+20160501130729"
   },

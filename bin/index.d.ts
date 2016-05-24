@@ -5,3 +5,5 @@ export declare function queryBy(fn: Function): any;
 export { toGraphQlQueryString, GraphQLWhere, Query } from "./test/query";
 export declare function integer(): any;
 export declare function useTable(tableName: string): any;
+/** Use this decorator to indicate that the field should map to the backend as a DATE field, but presented as an ISO Date String */
+export declare function isIsoDate(): any;
