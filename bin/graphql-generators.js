@@ -63,7 +63,7 @@ function generateGraphQLAttributes(p, collectClass, whereClass) {
         ("\t\t\t\t resolve: resolver(Seq.tables." + helpers_1.removePrefixI(collectClass) + ".associations." + helpers_1.convertMethodName(p.name) + "),\n") +
         "\t\t\t },\n"; }, function (d, p) { return ("\t\t\t " + ((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "") + " : {\n") +
         ("\t\t\t\t type: types." + helpers_1.toCamel(d.arguments[0].text) + "Type,\n") +
-        ("\t\t\t\t resolve: resolver(Seq.tables." + helpers_1.removePrefixI(d.arguments[0].text) + "),\n") +
+        ("\t\t\t\t resolve: resolver(Seq.tables." + helpers_1.removePrefixI(collectClass) + ".associations." + p.name.replace("_id", "").replace("_code", "").replace(/\"/g, "") + "),\n") +
         "\t\t\t},\n"; });
     buffer += "\t\t})\n";
     buffer += "\t});\n";

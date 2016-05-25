@@ -67,7 +67,7 @@ export function generateGraphQLAttributes(p: TsTypeInfo.ClassPropertyDefinition,
             `\t\t\t },\n`,
         (d, p) => `\t\t\t ${((d.arguments[2] && d.arguments[2].text) || p.name.replace("_id", "").replace("_code", "")).replace(/\"/g, "")} : {\n` +
             `\t\t\t\t type: types.${toCamel(d.arguments[0].text)}Type,\n` +
-            `\t\t\t\t resolve: resolver(Seq.tables.${removePrefixI(d.arguments[0].text)}),\n` +
+            `\t\t\t\t resolve: resolver(Seq.tables.${removePrefixI(collectClass)}.associations.${p.name.replace("_id", "").replace("_code", "").replace(/\"/g, "")}),\n` +
             `\t\t\t},\n`);
     buffer += "\t\t})\n";
     buffer += "\t});\n";
