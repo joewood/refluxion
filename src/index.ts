@@ -1,3 +1,5 @@
+export { toGraphQlQueryString, GraphQLWhere, Query } from "./test/query";
+
 export function hasMany(target: any, key: string, descriptor: PropertyDescriptor) { return descriptor; }
 
 export function createHasOne<M>() {
@@ -14,13 +16,12 @@ export function queryBy(fn: Function) {
     // return function(target: any, key, descriptor: PropertyDescriptor) : PropertyDescriptor { return descriptor; }; 
 }
 
-export { toGraphQlQueryString, GraphQLWhere, Query } from "./test/query";
 
 export function integer() {
     return null;
 }
 
-export function useTable(tableName:string) {
+export function useTable(tableName: string) {
     return null;
 }
 

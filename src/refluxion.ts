@@ -1,5 +1,5 @@
 import * as TsTypeInfo from "ts-type-info";
-import { camelToUnderscore } from "common-ts/lib/core";
+import { camelToUnderscore } from "core-ts/lib/core";
 import fs = require("fs");
 import * as Path from "path";
 import path = require("path");

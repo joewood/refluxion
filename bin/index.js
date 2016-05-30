@@ -1,4 +1,7 @@
 "use strict";
+var query_1 = require("./test/query");
+exports.toGraphQlQueryString = query_1.toGraphQlQueryString;
+exports.Query = query_1.Query;
 function hasMany(target, key, descriptor) { return descriptor; }
 exports.hasMany = hasMany;
 function createHasOne() {
@@ -16,9 +19,6 @@ function queryBy(fn) {
     // return function(target: any, key, descriptor: PropertyDescriptor) : PropertyDescriptor { return descriptor; }; 
 }
 exports.queryBy = queryBy;
-var query_1 = require("./test/query");
-exports.toGraphQlQueryString = query_1.toGraphQlQueryString;
-exports.Query = query_1.Query;
 function integer() {
     return null;
 }
