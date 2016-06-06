@@ -1,3 +1,6 @@
+export interface Dict<T> {
+    [index: string]: T;
+}
 export declare class Query {
     fields: string[];
     nested: Dict<Query>;

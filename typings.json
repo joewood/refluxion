@@ -1,9 +1,6 @@
 {
   "dependencies": {},
   "ambientDependencies": {
-    "normalizr": "registry:dt/normalizr#2.0.1+20160501130729"
   },
-  "globalDependencies": {
-    "commander": "registry:dt/commander#2.3.0+20160317120654"
-  }
+  "globalDependencies": {}
 }

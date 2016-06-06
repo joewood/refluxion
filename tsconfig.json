@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "bin",
+        "outDir": "lib",
         "target": "ES5",
         "module": "commonjs",
         "sourceMap": true,
@@ -8,5 +8,8 @@
         "declaration": true,
         "experimentalDecorators":true
     },
-    "exclude":["node_modules","bin","src/test","typings/browser","typings/browser.d.ts","typings/tsd.d.ts"]
+    "files": [
+        "typings/index.d.ts",
+        "src/main.ts"
+    ]
 }

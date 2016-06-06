@@ -1,4 +1,5 @@
-export { toGraphQlQueryString, GraphQLWhere, Query } from "./test/query";
+export { Dict, toGraphQlQueryString, GraphQLWhere, Query } from "./query";
+import { Dict } from "./query";
 export declare function hasMany(target: any, key: string, descriptor: PropertyDescriptor): PropertyDescriptor;
 export declare function createHasOne<M>(): <T>(c: new (x: any) => T, relative: (master: M) => Dict<T>, nameOverride?: any) => any;
 export declare function root(construc: Function): void;

@@ -1,4 +1,4 @@
 node_modules
-bin/**/*.map
+*.map
 src/test/refluxion
 src/test/server

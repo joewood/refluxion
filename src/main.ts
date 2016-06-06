@@ -1,4 +1,6 @@
-export { toGraphQlQueryString, GraphQLWhere, Query } from "./test/query";
+
+export { Dict, toGraphQlQueryString, GraphQLWhere, Query } from "./query";
+import { Dict } from "./query";
 
 export function hasMany(target: any, key: string, descriptor: PropertyDescriptor) { return descriptor; }
 
