@@ -54,3 +54,4 @@ function toGraphQlQueryString(operation, query) {
     return "{ " + operation + " " + (typeof query !== "string" ? query.toGraphQL() : query) + "\n}";
 }
 exports.toGraphQlQueryString = toGraphQlQueryString;
+//# sourceMappingURL=query.js.map

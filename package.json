@@ -5,7 +5,7 @@
   "main": "lib/main.js",
   "typings": "lib/main.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tsc  && mocha ./lib/tests"
   },
   "repository": {
     "type": "git",
@@ -19,9 +19,13 @@
   "author": "Joe Wood",
   "license": "MIT",
   "devDependencies": {
-    "tslint": "^3.10.2"
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3",
+    "tslint": "^3.11.0",
+    "typescript": "^1.8.10"
   },
   "dependencies": {
-    "core-ts": "git+https://github.com/joewood/core-ts.git"
+    "core-ts": "git+https://github.com/joewood/core-ts.git",
+    "lodash": "^4.13.1"
   }
 }

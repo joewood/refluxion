@@ -4,13 +4,17 @@ import { Dict } from "./query";
 
 export function hasMany(target: any, key: string, descriptor: PropertyDescriptor) { return descriptor; }
 
+export function hasOne<M, T>(c: { new (x: any): T }, relative: (master: M) => Dict<T>, nameOverride = null) {
+    return null;
+}
+
 export function createHasOne<M>() {
     return function hasOne<T>(c: { new (x: any): T }, relative: (master: M) => Dict<T>, nameOverride = null) {
         return null;
     }
 }
 
-export function root(construc: Function) {
+export function root(ctr: Function) {
 }
 
 export function queryBy(fn: Function) {

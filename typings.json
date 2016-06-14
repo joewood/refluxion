@@ -1,6 +1,15 @@
 {
-  "dependencies": {},
-  "ambientDependencies": {
+  "dependencies": {
+    "lodash": "registry:npm/lodash#4.0.0+20160416211519"
   },
-  "globalDependencies": {}
+  "ambientDependencies": {},
+  "globalDependencies": {
+    "core-js": "registry:dt/core-js#0.0.0+20160602141332"
+  },
+  "globalDevDependencies": {
+    "mocha": "registry:env/mocha#2.2.5+20160321223601"
+  },
+  "devDependencies": {
+    "chai": "registry:npm/chai#3.5.0+20160415060238"
+  }
 }
