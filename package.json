@@ -20,12 +20,12 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^2.5.3",
-    "tslint": "^3.11.0",
+    "mocha": "^3.0.2",
+    "tslint": "^3.14.0",
     "typescript": "^1.8.10"
   },
   "dependencies": {
-    "core-ts": "git+https://github.com/joewood/core-ts.git",
-    "lodash": "^4.13.1"
+    "core-ts": "file:///C:\\code\\core-ts",
+    "lodash": "^4.14.2"
   }
 }

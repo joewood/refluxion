@@ -8,6 +8,10 @@ export function hasOne<M, T>(c: { new (x: any): T }, relative: (master: M) => Di
     return null;
 }
 
+export function length( len:number) {
+    return null;
+}
+
 export function createHasOne<M>() {
     return function hasOne<T>(c: { new (x: any): T }, relative: (master: M) => Dict<T>, nameOverride = null) {
         return null;

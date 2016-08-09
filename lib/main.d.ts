@@ -4,6 +4,7 @@ export declare function hasMany(target: any, key: string, descriptor: PropertyDe
 export declare function hasOne<M, T>(c: {
     new (x: any): T;
 }, relative: (master: M) => Dict<T>, nameOverride?: any): any;
+export declare function length(len: number): any;
 export declare function createHasOne<M>(): <T>(c: new (x: any) => T, relative: (master: M) => Dict<T>, nameOverride?: any) => any;
 export declare function root(ctr: Function): void;
 export declare function queryBy(fn: Function): any;
