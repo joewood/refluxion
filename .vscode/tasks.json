@@ -5,7 +5,7 @@
     "command": "tsc",
     "args": [
         "-p",
-        "test-tsconfig.json"
+        "tests/test-tsconfig.json"
     ],
     "isShellCommand": true,
     "showOutput": "silent",

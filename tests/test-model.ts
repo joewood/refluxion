@@ -1,4 +1,4 @@
-import {maxBy, minBy, values } from "core-ts/lib/core";
+import {maxBy, minBy, values } from "lodash";
 
 import { integer, hasMany, hasOne, root, queryBy, Dict } from "../src/main";
 

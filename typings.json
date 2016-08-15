@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "lodash": "registry:npm/lodash#4.0.0+20160416211519"
+    "lodash": "registry:npm/lodash#4.0.0+20160723033700"
   },
   "ambientDependencies": {},
   "globalDependencies": {

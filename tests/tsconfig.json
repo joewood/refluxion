@@ -1,14 +1,14 @@
 {
     "compilerOptions": {
-        "outDir": ".",
-        "target": "ES5",
+        "outDir": "out",
+        "target": "ES6",
         "module": "commonjs",
-        "sourceMap": true,
         "preserveConstEnums": true,
+        "declaration": false,
         "experimentalDecorators":true
     },
     "files": [
-        "typings/index.d.ts",
-        "tests/test.ts"
+        "../typings/index.d.ts",
+        "test.ts"
     ]
 }

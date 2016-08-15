@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "lib",
+        "outDir": "./lib",
         "target": "ES5",
         "module": "commonjs",
         "preserveConstEnums": true,
