@@ -1,14 +1,19 @@
 {
     "compilerOptions": {
-        "outDir": "./lib",
+        "outDir": "lib",
         "target": "ES5",
         "module": "commonjs",
+        "sourceMap": true,
         "preserveConstEnums": true,
         "declaration": true,
-        "experimentalDecorators":true
+        "experimentalDecorators":true,
+        "lib": [
+            "es2015","es2016","es2017","es2017.object","es2015.promise"
+        ],
+        "types": [
+        ]
     },
     "files": [
-        "typings/index.d.ts",
-        "src/main.ts"
+        "src/refluxion.ts"
     ]
 }

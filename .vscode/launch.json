@@ -1,0 +1,42 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/lib/refluxion.js",
+            "stopOnEntry": false,
+            "args": [
+ "--interfaces","--sequelize","--graphql","--client-ql","--normalizr","src/test/test-model.ts","-o","src/test"
+            ],
+            "cwd": "${workspaceRoot}",
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "externalConsole": false,
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/bin"
+        },
+        {
+            "name": "Launch Test",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/src/test/test.ts",
+            "stopOnEntry": false,
+            "cwd": "${workspaceRoot}/src/test",
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "externalConsole": false,
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/src/test"
+        }
+    ]
+}
