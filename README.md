@@ -27,7 +27,7 @@ Installing locally is preferred. The tool can then be used with an npm script to
 the code artifacts. e.g. in `package.json`:
 ```
  "scripts": {
-    "generate": "refluxion --interfaces --sequelize --graphql --client-ql --normalizr src/test/test-model.ts -o src/test/refluxion"
+    "generate": "refluxion --interfaces --sequelize --graphql --client-ql --normalizr src/model.ts -o src/refluxion"
   },
 ```
 
