@@ -180,12 +180,10 @@ export function getGraphQL( Seq: SequelizeModel ) : GraphQLTypes {
 				 type: new GraphQL.GraphQLList(types.commentType),
 				 resolve: resolver(Seq.tables.Article.associations.comments),
 			 },
-
 			 author : {
 				 type: types.userType,
 				 resolve: resolver(Seq.tables.Article.associations.author),
 			},
-
 		})
 	});
 
@@ -211,9 +209,9 @@ is generated representing this same structure:
 
 ```typescript
 export interface ArticlesQuery extends GraphQLWhere {
-	 order?: string;
-	 offset?: number;
-	 limit?: number;
+	order?: string;
+	offset?: number;
+	limit?: number;
 	id? : string;
 	contentLike? : string;
 	author_id? : string;
@@ -277,13 +275,7 @@ export function initEntities( sequelize : Sequelize.Sequelize, coreFields: Seque
 			}),
 				<Sequelize.DefineOptions<any>>Object.assign({},commonOptions,additionalOptions["comment"])
 			) as CommentModel,
-		user : sequelize.define("user", <Sequelize.DefineAttributes>Object.assign({},coreFields,{
-				email: { type: Sequelize.STRING },
-				numberComments: { type: Sequelize.INTEGER },
-				gender: { type: Sequelize.STRING },
-			}),
-				<Sequelize.DefineOptions<any>>Object.assign({},commonOptions,additionalOptions["user"])
-			) as UserModel,
+		::   ::
 	};
 }
 ```
@@ -318,19 +310,6 @@ interface CommentModel extends Sequelize.Model<Interfaces.IComment,any> {
 		article: Sequelize.Model<Interfaces.IArticle,any>;
 	}
 }
-
-interface UserModel extends Sequelize.Model<Interfaces.IUser,any> {
-	associations : {
-		articles: Sequelize.Model<Interfaces.IArticle,any>;
-		comments: Sequelize.Model<Interfaces.IComment,any>;
-	}
-}
-
-export interface Tables {
-	article: ArticleModel;
-	comment: CommentModel;
-	user: UserModel;
-}
 ```
 
 ## Interfaces
@@ -360,9 +339,9 @@ In addition, an interface is created that represents the Query arguments:
 
 ```typescript
 export interface ArticlesQuery extends GraphQLWhere {
-	 order?: string;
-	 offset?: number;
-	 limit?: number;
+	order?: string;
+	offset?: number;
+	limit?: number;
 	id? : string;
 	contentLike? : string;
 	author_id? : string;
