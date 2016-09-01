@@ -23,7 +23,15 @@ This is a develop-time tool to generate code that is best installed locally in t
 npm install https://github.com/joewood/refluxion --save-dev
 ```
 
-Installing locally is preferred. The tool can then be used with an npm script to re-generate the code artifacts.
+Installing locally is preferred. The tool can then be used with an npm script to re-generate 
+the code artifacts. e.g. in `package.json`:
+```
+ "scripts": {
+    "generate": "refluxion --interfaces --sequelize --graphql --client-ql --normalizr src/test/test-model.ts -o src/test/refluxion"
+  },
+```
+
+Regnerating then by simple `npm run generate`.
 
 ## The Model
 
