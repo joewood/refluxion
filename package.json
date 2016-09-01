@@ -30,19 +30,20 @@
   "author": "Joe Wood",
   "license": "MIT",
   "devDependencies": {
-    "@types/commander": "^2.3.29",
+    "@types/commander": "2.3.29",
     "@types/fs-extra": "0.0.31",
-    "@types/node": "^6.0.34",
-    "@types/normalizr": "^2.0.14",
-    "normalizr": "^2.1.0",
-    "tslint": "^3.14.0",
-    "typescript": "^2.0.0"
+    "@types/lodash": "^4.14.34",
+    "@types/node": "6.0.38",
+    "@types/normalizr": "2.0.16",
+    "normalizr": "2.2.1",
+    "tslint": "3.15.1"
   },
   "dependencies": {
-    "commander": "^2.9.0",
-    "core-ts": "git+https://github.com/joewood/core-ts.git",
-    "fs-extra": "^0.30.0",
-    "source-map-support": "^0.4.2",
-    "ts-type-info": "git+https://github.com/dsherret/ts-type-info.git#dev"
+    "commander": "2.9.0",
+    "fs-extra": "0.30.0",
+    "lodash": "^4.15.0",
+    "source-map-support": "0.4.2",
+    "ts-type-info": "git+https://github.com/dsherret/ts-type-info.git#dev",
+    "typescript": "^2.0.2"
   }
 }

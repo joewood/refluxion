@@ -48,8 +48,8 @@ rawInputs.forEach(ri => {
 const inputFilenames = program.args; // process.argv.slice(3).map(arg => Path.resolve(process.cwd() + "/" + arg));
 const mainFilename = Path.resolve(inputFilenames[inputFilenames.length - 1]);
 const outputDir = path.resolve(rawOutput);
-const modelRelative = path.relative(outputDir,mainFilename);
-const justRelativeFilename = modelRelative.replace(".ts","").replace(/\\/g,"\/");
+const modelRelative = path.relative(outputDir, mainFilename);
+const justRelativeFilename = modelRelative.replace(".ts", "").replace(/\\/g, "\/");
 const clientQl = !!program["clientQl"];
 const interfaces = !!program["interfaces"];
 const normalizr = !!program["normalizr"];
@@ -58,8 +58,8 @@ const sequelize = !!program["sequelize"];
 const redux = !!program["redux"];
 const writtenFiles = [] as string[];
 console.log("DIR " + __dirname);
-fs.copySync(__dirname + "/distribution/query.ts",outputDir+"/query.ts");
-fs.copySync(__dirname + "/distribution/decorators.ts",outputDir+"/decorators.ts");
+fs.copySync(__dirname + "/distribution/query.ts", outputDir + "/query.ts");
+fs.copySync(__dirname + "/distribution/decorators.ts", outputDir + "/decorators.ts");
 
 
 const outputBasename = Path.basename(mainFilename).replace(Path.extname(mainFilename), "");
@@ -67,6 +67,7 @@ const outputBasename = Path.basename(mainFilename).replace(Path.extname(mainFile
 console.log(`Refluxion:\n\tModel: ${mainFilename}\n\tOutput: ${outputDir}${path.sep}${outputBasename}.*.ts`);
 
 const gd = TsTypeInfo.getInfoFromFiles(inputFilenames, {
+
     showDebugMessages: true,
     compilerOptions:
     {
@@ -74,15 +75,15 @@ const gd = TsTypeInfo.getInfoFromFiles(inputFilenames, {
         "module": "commonjs",
         "preserveConstEnums": true,
         "experimentalDecorators": true,
-        // "lib":new Array(
+        // "moduleResolution": "node",
+        // "lib": [
         //     "es2015",
         //     "es2016",
         //     "es2017",
         //     "es2017.object",
         //     "es2015.promise"
-        //     ),
-        "types": [
-        ]
+        // ],
+        "types": ["node"]
     }
 } as TsTypeInfo.Options);
 

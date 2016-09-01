@@ -1,4 +1,3 @@
-// import {maxBy, minBy, values } from "core-ts/lib/core";
 "use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -6,8 +5,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var refluxion_1 = require("refluxion");
-var hasOne = refluxion_1.createHasOne();
+var decorators_1 = require("./refluxion/decorators");
+var hasOne = decorators_1.createHasOne();
 (function (ArchivalState) {
     ArchivalState[ArchivalState["live"] = 0] = "live";
     ArchivalState[ArchivalState["pending"] = 1] = "pending";
@@ -20,16 +19,16 @@ var MyModel = (function () {
     function MyModel() {
     }
     __decorate([
-        refluxion_1.queryBy(ArticlesWhere)
+        decorators_1.queryBy(ArticlesWhere)
     ], MyModel.prototype, "articles", void 0);
     __decorate([
-        refluxion_1.queryBy(CommentsWhere)
+        decorators_1.queryBy(CommentsWhere)
     ], MyModel.prototype, "comments", void 0);
     __decorate([
-        refluxion_1.queryBy(UsersWhere)
+        decorators_1.queryBy(UsersWhere)
     ], MyModel.prototype, "users", void 0);
     MyModel = __decorate([
-        refluxion_1.root
+        decorators_1.root
     ], MyModel);
     return MyModel;
 }());
@@ -43,13 +42,13 @@ var Article = (function () {
         return comments.filter(function (com) { return _this.id === com.article_id; });
     };
     __decorate([
-        refluxion_1.length(255)
+        decorators_1.length(255)
     ], Article.prototype, "id", void 0);
     __decorate([
         hasOne(User, function (master) { return master.users; })
     ], Article.prototype, "author_id", void 0);
     __decorate([
-        refluxion_1.hasMany
+        decorators_1.hasMany
     ], Article.prototype, "getComments", null);
     return Article;
 }());
@@ -58,10 +57,10 @@ var ArticlesWhere = (function () {
     function ArticlesWhere() {
     }
     __decorate([
-        refluxion_1.length(255)
+        decorators_1.length(255)
     ], ArticlesWhere.prototype, "id", void 0);
     __decorate([
-        refluxion_1.length(255)
+        decorators_1.length(255)
     ], ArticlesWhere.prototype, "author_id", void 0);
     return ArticlesWhere;
 }());
@@ -70,18 +69,18 @@ var Comment = (function () {
     function Comment() {
     }
     __decorate([
-        refluxion_1.isIsoDate()
+        decorators_1.isIsoDate()
     ], Comment.prototype, "date", void 0);
     __decorate([
-        refluxion_1.length(255)
+        decorators_1.length(255)
     ], Comment.prototype, "id", void 0);
     __decorate([
         hasOne(User, function (master) { return master.users; }),
-        refluxion_1.length(255)
+        decorators_1.length(255)
     ], Comment.prototype, "author_id", void 0);
     __decorate([
         hasOne(Article, function (master) { return master.articles; }),
-        refluxion_1.length(255)
+        decorators_1.length(255)
     ], Comment.prototype, "article_id", void 0);
     return Comment;
 }());
@@ -104,16 +103,16 @@ var User = (function () {
         return comments.filter(function (com) { return _this.id === com.author_id; });
     };
     __decorate([
-        refluxion_1.length(255)
+        decorators_1.length(255)
     ], User.prototype, "id", void 0);
     __decorate([
-        refluxion_1.integer()
+        decorators_1.integer()
     ], User.prototype, "numberComments", void 0);
     __decorate([
-        refluxion_1.hasMany
+        decorators_1.hasMany
     ], User.prototype, "getArticles", null);
     __decorate([
-        refluxion_1.hasMany
+        decorators_1.hasMany
     ], User.prototype, "getComments", null);
     return User;
 }());
@@ -124,4 +123,3 @@ var UsersWhere = (function () {
     return UsersWhere;
 }());
 exports.UsersWhere = UsersWhere;
-//# sourceMappingURL=test-model.js.map

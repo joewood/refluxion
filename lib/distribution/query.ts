@@ -1,6 +1,6 @@
-export interface Dict<T> { 
-    [index: string]: T;
-}
+export interface Dict<T> {
+    [index:string]:T
+};
 
 function inspect(x: any, depth = 10): string {
     if (depth == 0) return "TOO DEEP";

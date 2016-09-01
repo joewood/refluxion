@@ -15,12 +15,13 @@ export function generateInterfaceForClass(collectClass: TsTypeInfo.ClassDefiniti
     buffer += collectClass.properties.map(p => {
         let typeName = p.type.text;
         const propType = p.type;
+        const definition = propType.definitions && propType.definitions[0];
         if (propType["typeArguments"] && propType["typeArguments"].length>0) {
             const typeArg = propType["typeArguments"][0];
             typeName = makeArrays ? ("Model." + typeArg.text + "[]") : typeName.replace(typeArg.text, "Model." + typeArg.text);
-        } else if (propType.isEnumDefinition() 
-            || (propType.definitions && propType.definitions[0] && 
-                (propType.definitions[0].isInterfaceDefinition() || propType.definitions[0].isEnumDefinition()))) {
+        } else if (propType.text=="boolean") {
+            typeName = "boolean";
+        } else if (propType.isEnumDefinition() || (propType.unionTypes.length!=0 && !propType.text.startsWith("\"")) || (definition && (definition.isInterfaceDefinition() || definition.isEnumDefinition()))) {
             typeName = "Model." + typeName;
         } else {
             typeName = propType.text;
