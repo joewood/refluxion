@@ -31,7 +31,7 @@ the code artifacts. e.g. in `package.json`:
   },
 ```
 
-Regnerating then by simple `npm run generate`.
+Regnerating with simply: `npm run generate`.
 
 ## The Model
 
