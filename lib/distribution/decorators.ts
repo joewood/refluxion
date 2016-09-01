@@ -10,7 +10,7 @@ export function length(len: number): any {
     return null;
 }
 
-export function createHasOne<M>() : Function {
+export function createHasOne<M>() {
     return function hasOne<T>(c: { new (x: any): T }, relative: (master: M) => Dict<T>, nameOverride: string = null): any {
         return null;
     }
