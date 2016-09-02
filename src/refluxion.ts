@@ -57,10 +57,7 @@ const graphql = !!program["graphql"];
 const sequelize = !!program["sequelize"];
 const redux = !!program["redux"];
 const writtenFiles = [] as string[];
-console.log("DIR " + __dirname);
-fs.copySync(__dirname + "/distribution/query.ts", outputDir + "/query.ts");
-fs.copySync(__dirname + "/distribution/decorators.ts", outputDir + "/decorators.ts");
-
+fs.copySync(__dirname + "/distribution", outputDir + "/");
 
 const outputBasename = Path.basename(mainFilename).replace(Path.extname(mainFilename), "");
 
@@ -231,8 +228,8 @@ if (graphql) {
     appendLine(outputGraphQL, 'import * as GraphQL from "graphql";');
     appendLine(outputGraphQL, 'var graphqlSeq = require("graphql-sequelize");');
     appendLine(outputGraphQL, 'let {resolver, attributeFields, defaultListArgs, defaultArgs} = graphqlSeq;');
-    appendLine(outputGraphQL, 'import SequelizeModel from "../sequelize-model";');
-    appendLine(outputGraphQL, 'import {GraphQLDate} from "../graphql-date";');
+    appendLine(outputGraphQL, `import {Tables} from "./${outputBasename}.sequelize";`);
+    appendLine(outputGraphQL, 'import {GraphQLDate} from "./graphql-date";');
     appendLine(outputGraphQL, 'export interface GraphQLTypes {');
     iterateRoot(modelFile, root, table => {
         if (!table.isTable) return;
@@ -240,7 +237,7 @@ if (graphql) {
     });
     appendLine(outputGraphQL, '}\n');
 
-    appendLine(outputGraphQL, 'export function getGraphQL( Seq: SequelizeModel ) : GraphQLTypes {');
+    appendLine(outputGraphQL, 'export function getGraphQL( tables: Tables ) : GraphQLTypes {');
     appendLine(outputGraphQL, '\tconst types : GraphQLTypes = {};');
 
     iterateRoot(modelFile, root, table => {

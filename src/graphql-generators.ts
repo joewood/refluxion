@@ -63,12 +63,12 @@ export function generateGraphQLAttributes(table: Table, collectClass: TsTypeInfo
     }
     buffer += table.mapClassMembers(
         hasMany => `\t\t\t ${hasMany.getName()} : {\n` +
-            `\t\t\t\t type: new GraphQL.GraphQLList(types.${toCamel(hasMany.getManyType().name)}Type),\n` +
-            `\t\t\t\t resolve: resolver(Seq.tables.${tableName}.associations.${hasMany.getName()}),\n` +
+            `\t\t\t\t type: new GraphQL.GraphQLList(types.${toCamel(hasMany.getManyType().name)}Type ),\n` +
+            `\t\t\t\t resolve: resolver( tables.${tableName}.associations.${hasMany.getName()} ),\n` +
             `\t\t\t },\n`,
         hasOne => `\t\t\t ${hasOne.getName()} : {\n` +
             `\t\t\t\t type: types.${toCamel(hasOne.getOneType().name)}Type,\n` +
-            `\t\t\t\t resolve: resolver(Seq.tables.${tableName}.associations.${hasOne.getName()}),\n` +
+            `\t\t\t\t resolve: resolver( tables.${tableName}.associations.${hasOne.getName()} ),\n` +
             `\t\t\t},\n`);
     buffer += "\t\t})\n";
     buffer += "\t});\n";
@@ -77,19 +77,19 @@ export function generateGraphQLAttributes(table: Table, collectClass: TsTypeInfo
 
 export function generateGraphQLEndPoints(p: TsTypeInfo.ClassPropertyDefinition, collectClass: TsTypeInfo.ClassDefinition, whereClass: TsTypeInfo.ClassDefinition, tableName:string): string {
     let buffer = "";
-    buffer += `export function get${removePrefixI(collectClass)}( Seq : SequelizeModel, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig {\n`;
+    buffer += `export function get${removePrefixI(collectClass)}( tables : Tables, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig {\n`;
     buffer += `\t return {\n`;
     buffer += `\t\t type: types.${toCamel(collectClass.name)}Type,\n`;
-    buffer += `\t\t args: defaultArgs(Seq.tables.${tableName}),\n`;
-    buffer += `\t\t resolve: resolver(Seq.tables.${tableName}),\n`;
+    buffer += `\t\t args: defaultArgs(tables.${tableName}),\n`;
+    buffer += `\t\t resolve: resolver(tables.${tableName}),\n`;
     buffer += `\t};\n`;
     buffer += `}\n\n`;
 
-    buffer += `export function get_${p.name}( Seq : SequelizeModel, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig  {\n`;
+    buffer += `export function get_${p.name}( tables : Tables, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig  {\n`;
     buffer += `\t return {\n`;
     buffer += `\t\t type: new GraphQL.GraphQLList(types.${toCamel(collectClass.name)}Type),\n`;
     buffer += `\t\t args: ${p.name}Args,\n`;
-    buffer += `\t\t resolve: resolver(Seq.tables.${tableName}),\n`;
+    buffer += `\t\t resolve: resolver(tables.${tableName}),\n`;
     buffer += `\t};\n`;
     buffer += `}\n`;
 
