@@ -7,13 +7,13 @@ export enum ArchivalState { live, pending, archived };
 // Define the root of the model. This serves as the root end-point on the server and the state of the app in Redux
 @root
 export class MyModel {
-    @queryBy(ArticlesWhere)
+    @queryBy(ArticlesQuery)
     public articles: Dict<Article>;
 
-    @queryBy(CommentsWhere)
+    @queryBy(CommentsQuery)
     public comments: Dict<Comment>;
 
-    @queryBy(UsersWhere)
+    @queryBy(UsersQuery)
     public users: Dict<User>;
 
     public loading:boolean;
@@ -37,7 +37,7 @@ export class Article {
     }
 }
 
-export class ArticlesWhere {
+export class ArticlesQuery {
     @length(255)
     id: string;
     contentLike: string;
@@ -63,7 +63,7 @@ export class Comment {
     public article_id: string;
 }
 
-export class CommentsWhere {
+export class CommentsQuery {
     id: string;
     author_id: string;
 }
@@ -90,7 +90,7 @@ export class User {
 }
 
 
-export class UsersWhere {
+export class UsersQuery {
     id: string;
     email: string;
 }

@@ -1,5 +1,5 @@
 # refluxion
-A TypeScript code-first full-stack generator for GraphQL, Reflux, Normalizr and Sequelizer.
+A TypeScript code-first full-stack generator for GraphQL, Redux, Normalizr and Sequelizer.
 
 **Note:** This is an experimental tool testing some ideas of using TypeScript with Decorators as data model across client and server.
     
