@@ -35,8 +35,9 @@ export function initEntities( sequelize : Sequelize.Sequelize, coreFields: Seque
 		article : sequelize.define("article", <Sequelize.DefineAttributes>Object.assign({},coreFields,{
 			content: { type: Sequelize.STRING },
 			date: { type: Sequelize.STRING },
-			archival_state: { type: Sequelize.ArchivalState },
+			archival_state: { type: Sequelize.INTEGER },
 			author_id: { type: Sequelize.STRING },
+			loading: { type: Sequelize.STRING },
 		}),
 			<Sequelize.DefineOptions<any>>Object.assign({},commonOptions,additionalOptions["article"])
 		) as ArticleModel,

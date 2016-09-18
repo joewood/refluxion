@@ -12,7 +12,6 @@ export interface IMyModel extends Base {
 	articles: Dict<Model.Article>;
 	comments: Dict<Model.Comment>;
 	users: Dict<Model.User>;
-	loading: boolean;
 }
 
 
@@ -21,9 +20,10 @@ export interface IMyModel extends Base {
 export interface IArticle extends Base {
 	content: string;
 	date: string;
-	archival_state: ArchivalState;
+	archival_state: Model.ArchivalState;
 	id: string;
 	author_id: string;
+	loading: Model.Loading;
 }
 
 
@@ -54,6 +54,5 @@ export interface IMyModelLists extends Base {
 	articles: Model.Article[];
 	comments: Model.Comment[];
 	users: Model.User[];
-	loading: boolean;
 }
 

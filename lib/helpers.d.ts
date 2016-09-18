@@ -15,7 +15,22 @@ export declare class Table {
     getTableInterfaceTypeName(): string;
     getWhereClass(): TsTypeInfo.ClassDefinition;
     /** For a specific class, for each many relationship add the specified line through the callback, same for each one-to-one */
-    mapClassMembers(hasMany: (hasMany: HasMany) => string, hasOne: (hasOne: HasOne) => string): string;
+    mapEntityRelationships(hasMany: (hasMany: HasMany) => string, hasOne: (hasOne: HasOne) => string): string;
+    mapEntityFields(fieldIteration: (field: EntityField) => string): string;
+}
+export declare class EntityField {
+    private modelFile;
+    private root;
+    private tableType;
+    property: TsTypeInfo.BasePropertyDefinition;
+    constructor(modelFile: TsTypeInfo.FileDefinition, root: TsTypeInfo.ClassDefinition, tableType: TsTypeInfo.ClassDefinition, property: TsTypeInfo.BasePropertyDefinition);
+    isUnionLiteralType(): boolean;
+    isUnionType(): boolean;
+    isEnum(): boolean;
+    getName(): string;
+    getTypeName(): string;
+    getTypeArguments(): TsTypeInfo.TypeDefinition[];
+    isPrimitive(): boolean;
 }
 export declare class HasMany {
     private modelFile;

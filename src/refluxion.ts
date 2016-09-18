@@ -63,15 +63,15 @@ const outputBasename = Path.basename(mainFilename).replace(Path.extname(mainFile
 
 console.log(`Refluxion:\n\tModel: ${mainFilename}\n\tOutput: ${outputDir}${path.sep}${outputBasename}.*.ts`);
 
-const gd = TsTypeInfo.getInfoFromFiles(inputFilenames, {
-
+const compilerOptions: TsTypeInfo.Options = {
     showDebugMessages: true,
+
     compilerOptions:
     {
-        "target": "ES5",
-        "module": "commonjs",
-        "preserveConstEnums": true,
-        "experimentalDecorators": true,
+        target: "ES5",
+        module: "commonjs",
+        preserveConstEnums: true,
+        experimentalDecorators: true,
         // "moduleResolution": "node",
         // "lib": [
         //     "es2015",
@@ -81,8 +81,11 @@ const gd = TsTypeInfo.getInfoFromFiles(inputFilenames, {
         //     "es2015.promise"
         // ],
         "types": ["node"]
-    }
-} as TsTypeInfo.Options);
+    } as TsTypeInfo.CompilerOptions
+
+};
+
+const gd = TsTypeInfo.getInfoFromFiles(inputFilenames, compilerOptions);
 
 const modelFile = gd.files.find(ff => Path.resolve(ff.fileName) === mainFilename);
 
@@ -125,7 +128,7 @@ if (sequelize) {
         if (!table.isTable) return;
         appendLine(outputSequelize, `interface ${table.getTableType().name}Model extends Sequelize.Model<Interfaces.${table.getTableInterfaceTypeName()},any> {`)
         appendLine(outputSequelize, `\tassociations : {`);
-        const buffer = table.mapClassMembers(
+        const buffer = table.mapEntityRelationships(
             hasMany => `\t\t${hasMany.getName()}: Sequelize.Model<Interfaces.${hasMany.getManyTypeInterfaceName()},any>;`,
             hasOne => `\t\t${hasOne.getName()}: Sequelize.Model<Interfaces.${hasOne.getOneInterfaceTypeName()},any>;`)
         appendLine(outputSequelize, buffer + "\t}");
@@ -148,7 +151,7 @@ if (sequelize) {
         for (let field of table.getTableType().properties) {
             let typeName = field.type.text;
             if (field.name === "id") continue;
-            appendLine(outputSequelize, `\t\t\t${field.name}: { type: ${getSequelizeTypeofProp(field)} },`);
+            appendLine(outputSequelize, `\t\t\t${field.name}: { type: ${getSequelizeTypeofProp(modelFile, root, table.getTableType(), field)} },`);
         }
         appendLine(outputSequelize, "\t\t}),");
         appendLine(outputSequelize, `\t\t\t<Sequelize.DefineOptions<any>>Object.assign({},commonOptions,additionalOptions["${table.getTableName()}"])`);
@@ -160,7 +163,7 @@ if (sequelize) {
     appendLine(outputSequelize, "export function initAssociations( tables : Tables) : void {");
     iterateRoot(modelFile, root, table => {
         if (!table.isTable) return;
-        const buffer = table.mapClassMembers(
+        const buffer = table.mapEntityRelationships(
             hasMany => `\ttables.${table.getTableName()}.hasMany(tables.${hasMany.getManyTableName()}, { as: "${hasMany.getName()}", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL"} )`,
             hasOne => `\ttables.${table.getTableName()}.belongsTo(tables.${hasOne.getOneTableName()}, { foreignKey: "${hasOne.property.name}", as: "${hasOne.getName()}", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL" })`
         );
@@ -196,13 +199,13 @@ if (interfaces) {
     appendLine(outputInterfaces, "export interface Base {");
     appendLine(outputInterfaces, "\tid?: string;");
     appendLine(outputInterfaces, "}\n");
-    appendLine(outputInterfaces, generateInterfaceForClass(root, "", false));
+    appendLine(outputInterfaces, generateInterfaceForClass(modelFile, root, root, "", false));
 
     iterateRoot(modelFile, root, table => {
         if (!table.isTable) return;
-        appendLine(outputInterfaces, generateInterfaceForClass(table.getTableType(), "", false));
+        appendLine(outputInterfaces, generateInterfaceForClass(modelFile, root, table.getTableType(), "", false));
     })
-    appendLine(outputInterfaces, generateInterfaceForClass(root, "Lists", true));
+    appendLine(outputInterfaces, generateInterfaceForClass(modelFile, root, root, "Lists", true));
 
     const outputPathOptional = initializeFile(outputDir + "/" + outputBasename + ".optional-interfaces.ts");
     writtenFiles.push(outputPathOptional);
@@ -211,13 +214,13 @@ if (interfaces) {
     appendLine(outputPathOptional, "export interface Base {");
     appendLine(outputPathOptional, "\tid?: string;");
     appendLine(outputPathOptional, "}\n");
-    appendLine(outputPathOptional, generateInterfaceForClass(root, "", false));
+    appendLine(outputPathOptional, generateInterfaceForClass(modelFile, root, root, "", false));
 
     iterateRoot(modelFile, root, table => {
         if (!table.isTable) return;
-        appendLine(outputPathOptional, generateInterfaceForClass(table.getTableType(), "", false, true));
+        appendLine(outputPathOptional, generateInterfaceForClass(modelFile, root, table.getTableType(), "", false, true));
     })
-    appendLine(outputPathOptional, generateInterfaceForClass(root, "Lists", true, true));
+    appendLine(outputPathOptional, generateInterfaceForClass(modelFile, root, root, "Lists", true, true));
 
 }
 
@@ -242,13 +245,13 @@ if (graphql) {
 
     iterateRoot(modelFile, root, table => {
         if (!table.isTable) return;
-        appendLine(outputGraphQL, generateGraphQLAttributes(table, table.getTableType(), table.getWhereClass(), table.getTableName()) + "\n");
+        appendLine(outputGraphQL, generateGraphQLAttributes(modelFile, root, table, table.getWhereClass(), table.getTableName()) + "\n");
     });
     appendLine(outputGraphQL, "\treturn types;\n}\n");
 
     iterateRoot(modelFile, root, table => {
         if (!table.isTable) return;
-        appendLine(outputGraphQL, generateGraphQLArgs(table.tableProperty, table.getTableType(), table.getWhereClass()) + "\n");
+        appendLine(outputGraphQL, generateGraphQLArgs(modelFile, root, table, table.tableProperty, table.getWhereClass()) + "\n");
     });
 
     iterateRoot(modelFile, root, table => {

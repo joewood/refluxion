@@ -1,9 +1,11 @@
-import { integer, hasMany, createHasOne, root, queryBy, isIsoDate, length} from "./refluxion/decorators";
+import { integer, hasMany, createHasOne, root, queryBy, isIsoDate, length } from "./refluxion/decorators";
 import { Dict } from "./refluxion/query";
 
 const hasOne = createHasOne<MyModel>();
 
 export enum ArchivalState { live, pending, archived };
+
+type Loading = "UNKNOWN" | "LOADING" | "LOADED";
 // Define the root of the model. This serves as the root end-point on the server and the state of the app in Redux
 @root
 export class MyModel {
@@ -16,7 +18,6 @@ export class MyModel {
     @queryBy(UsersQuery)
     public users: Dict<User>;
 
-    public loading:boolean;
 }
 
 // Define the article class, contains a foreign key to user
@@ -29,7 +30,10 @@ export class Article {
     public id: string;
 
     @hasOne(User, master => master.users)
-    public  author_id : string;
+    public author_id: string;
+
+    public loading: Loading;
+
 
     @hasMany
     public getComments(comments: Comment[]): Comment[] {
@@ -47,10 +51,10 @@ export class ArticlesQuery {
 
 export class Comment {
     public content: string;
-    
+
     @isIsoDate()
     public date: string;
-    
+
     @length(255)
     public id: string;
 

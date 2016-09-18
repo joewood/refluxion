@@ -1,7 +1,7 @@
 import * as TsTypeInfo from "ts-type-info";
 import fs = require("fs");
 import * as Path from "path";
-import { appendLine, getDictReturnType, removePrefixI, toCamel, iterateRoot} from "./helpers";
+import { EntityField, appendLine, getDictReturnType, removePrefixI, toCamel, iterateRoot} from "./helpers";
 
 // export function generateTypesForClass(collectClass: TsTypeInfo.ClassDefinition, suffix: string, makeArrays: boolean): string {
 //     let buffer = "";
@@ -27,10 +27,15 @@ import { appendLine, getDictReturnType, removePrefixI, toCamel, iterateRoot} fro
 // }
 
 
-export function getSequelizeTypeofProp(p: TsTypeInfo.BasePropertyDefinition): string {
+export function getSequelizeTypeofProp(modelFile:TsTypeInfo.FileDefinition, modelRoot: TsTypeInfo.ClassDefinition, entity: TsTypeInfo.ClassDefinition, p: TsTypeInfo.ClassPropertyDefinition): string {
+    const prop = new EntityField(modelFile,modelRoot,entity,p);    
+    
     if (p.type.text.startsWith("\"")) return "Sequelize.STRING";
-    if (p.type.definitions[0] && p.type.definitions[0].isEnumDefinition()) {
+    if (prop.isEnum()) {
         return "Sequelize.INTEGER";
+    }
+    if (prop.isUnionType()) {
+        return "Sequelize.STRING";
     }
     const decs = (p as TsTypeInfo.ClassPropertyDefinition).decorators;
     if (decs && decs.find(d => d.name === "isIsoDate")) {

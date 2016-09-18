@@ -32,7 +32,7 @@
   "devDependencies": {
     "@types/commander": "2.3.29",
     "@types/fs-extra": "0.0.31",
-    "@types/lodash": "^4.14.34",
+    "@types/lodash": "4.14.34",
     "@types/node": "6.0.38",
     "@types/normalizr": "2.0.16",
     "normalizr": "2.2.1",
@@ -41,7 +41,7 @@
   "dependencies": {
     "commander": "2.9.0",
     "fs-extra": "0.30.0",
-    "lodash": "^4.15.0",
+    "lodash": "4.15.0",
     "source-map-support": "0.4.2",
     "ts-type-info": "git+https://github.com/dsherret/ts-type-info.git#dev",
     "typescript": "^2.0.2"

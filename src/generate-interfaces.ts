@@ -1,9 +1,9 @@
 import * as TsTypeInfo from "ts-type-info";
 import fs = require("fs");
 import * as Path from "path";
-import { appendLine, Table, getDictReturnType, removePrefixI, toCamel, iterateRoot} from "./helpers";
+import { appendLine, Table, getDictReturnType, EntityField, removePrefixI, toCamel, iterateRoot} from "./helpers";
 
-export function generateInterfaceForClass(collectClass: TsTypeInfo.ClassDefinition, suffix: string, makeArrays: boolean, optional=false): string {
+export function generateInterfaceForClass(modelFile:TsTypeInfo.FileDefinition, modelRoot:TsTypeInfo.ClassDefinition, collectClass: TsTypeInfo.ClassDefinition, suffix: string, makeArrays: boolean, optional=false): string {
     if (!collectClass) {
         console.trace("Type for Class is null");
         return "<NULL>";
@@ -13,18 +13,26 @@ export function generateInterfaceForClass(collectClass: TsTypeInfo.ClassDefiniti
     buffer += `\n// created from class ` + collectClass.name + "\n";
     buffer += `\nexport interface ${name} extends Base {\n`;
     buffer += collectClass.properties.map(p => {
-        let typeName = p.type.text;
+        const prop = new EntityField(modelFile,modelRoot,collectClass,p);
+
+        let typeName = prop.getTypeName();
         const propType = p.type;
         const definition = propType.definitions && propType.definitions[0];
-        if (propType["typeArguments"] && propType["typeArguments"].length>0) {
-            const typeArg = propType["typeArguments"][0];
+        const typeArgs = prop.getTypeArguments();
+
+        console.log(`Property ${prop.getName()} Enum:${prop.isEnum()} Prim:${prop.isPrimitive()} UnionL:${prop.isUnionLiteralType()}`);
+        // for root tables
+        if (typeArgs && typeArgs.length>0) {
+            const typeArg = typeArgs[0];
             typeName = makeArrays ? ("Model." + typeArg.text + "[]") : typeName.replace(typeArg.text, "Model." + typeArg.text);
-        } else if (propType.text=="boolean") {
-            typeName = "boolean";
-        } else if (propType.isEnumDefinition() || (propType.unionTypes.length!=0 && !propType.text.startsWith("\"")) || (definition && (definition.isInterfaceDefinition() || definition.isEnumDefinition()))) {
+        } else if (prop.isEnum()) {
             typeName = "Model." + typeName;
-        } else {
+        } else if (prop.isPrimitive()) {
+            // do nothing
+        } else if (prop.isUnionLiteralType()) {
             typeName = propType.text;
+        } else {
+            typeName = "Model." + typeName;
         }
         return `\t${p.name}${optional ? "?:" : ":"} ${typeName};`;
     }).join("\n");
@@ -36,7 +44,7 @@ export function generateInterfaceForClass(collectClass: TsTypeInfo.ClassDefiniti
 export function generateNestedClass(table: Table): string {
     let buffer = "";
     buffer += `export interface ${table.getTableInterfaceTypeName()}Nested {\n`;
-    buffer += table.mapClassMembers(
+    buffer += table.mapEntityRelationships(
         hasMany => `\t${hasMany.getName()}?: ${hasMany.getManyType().name}Query;`,
         hasOne => `\t${hasOne.getName()}?: ${hasOne.getOneType().name}Query;`
     );

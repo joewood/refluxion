@@ -10,8 +10,8 @@ export interface ArticlesQuery extends GraphQLWhere {
 }
 
 
-export type ArticlePrimitives = "content" | "date" | "archival_state" | "id" | "author_id";
-export const articleFields : ArticlePrimitives[] = ["content", "date", "archival_state", "id", "author_id"];
+export type ArticlePrimitives = "content" | "date" | "archival_state" | "id" | "author_id" | "loading";
+export const articleFields : ArticlePrimitives[] = ["content", "date", "archival_state", "id", "author_id", "loading"];
 
 
 export class ArticleQuery extends Query {

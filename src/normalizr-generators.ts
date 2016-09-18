@@ -9,7 +9,7 @@ export function generateNormalizrDefine(table: Table): string {
     const collectClass = table.getTableType();
     let normVarName = toCamel(collectClass.name);
     buffer += `${normVarName}.define({\n`;
-    buffer += table.mapClassMembers(
+    buffer += table.mapEntityRelationships(
         hasMany => `\t${hasMany.getName()} : arrayOf(${toCamel(hasMany.getManyType().name)}),`,
         hasOne => `\t${hasOne.getName()} : ${toCamel(hasOne.getOneType().name)},`);
     buffer += "});\n";

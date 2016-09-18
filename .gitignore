@@ -1,6 +1,5 @@
 node_modules
 bin/**/*.map
 lib/**/*.map
-src/test/refluxion
 src/test/server
 *.log

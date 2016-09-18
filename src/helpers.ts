@@ -81,7 +81,7 @@ export class Table {
     }
 
     /** For a specific class, for each many relationship add the specified line through the callback, same for each one-to-one */
-    public mapClassMembers(hasMany: (hasMany: HasMany) => string, hasOne: (hasOne: HasOne) => string): string {
+    public mapEntityRelationships(hasMany: (hasMany: HasMany) => string, hasOne: (hasOne: HasOne) => string): string {
         let buffer = "";
         const tableType = this.getTableType();
         for (let p of tableType.methods || []) {
@@ -96,6 +96,61 @@ export class Table {
         }
         return buffer;
     }
+
+    public mapEntityFields(fieldIteration: (field: EntityField) => string): string {
+        let buffer = "";
+        const tableType = this.getTableType();
+        for (let p of tableType.properties || []) {
+            if (!p.decorators || p.decorators.length === 0) continue;
+            if (!p.decorators.find(d => d.name === "hasMany" || d.name === "hasOne")) continue;
+            buffer += fieldIteration(new EntityField(this.modelFile, this.root, tableType, p)) + "\n";
+        }
+        return buffer;
+
+    }
+}
+
+export class EntityField {
+    constructor(
+        private modelFile: TsTypeInfo.FileDefinition,
+        private root: TsTypeInfo.ClassDefinition,
+        private tableType: TsTypeInfo.ClassDefinition,
+        public property: TsTypeInfo.BasePropertyDefinition) {
+    }
+
+    public isUnionLiteralType(): boolean {
+        const propType = this.property.type;
+        return (propType.unionTypes.length > 0) || ((propType.text.startsWith("\"")) || (propType.text.indexOf("|") >= 0));
+    }
+
+    public isUnionType(): boolean {
+        const typeName = this.getTypeName();
+        const ta = this.modelFile.typeAliases.find(e => typeName === e.name);
+        return ta && ta.type && ta.type.unionTypes.length > 0;
+    }
+
+    public isEnum(): boolean {
+        const typeName = this.getTypeName();
+        return !!this.modelFile.enums.find(e => typeName === e.name);
+    }
+
+    public getName(): string {
+        return this.property.name;
+    }
+
+    public getTypeName(): string {
+        return this.property.type.text;
+    }
+
+    public getTypeArguments(): TsTypeInfo.TypeDefinition[] {
+        return this.property.type["typeArguments"];
+    }
+
+    public isPrimitive(): boolean {
+        const name = this.getTypeName();
+        return name === "string" || name === "boolean" || name === "number";
+    }
+
 }
 
 export class HasMany {
@@ -115,7 +170,8 @@ export class HasMany {
     }
 
     public getManyType(): TsTypeInfo.ClassDefinition {
-        const foundType = this.modelFile.classes.find(c => c.name === (this.property.returnType && this.property.returnType.typeArguments && this.property.returnType.typeArguments[0] && this.property.returnType.typeArguments[0].text));
+        // assume this is an array
+        const foundType = this.modelFile.classes.find(c => c.name === (this.property.returnType && this.property.returnType.arrayElementType && this.property.returnType.arrayElementType && this.property.returnType.arrayElementType.text));
         if (!foundType) {
             console.warn("Cannot find type to match the return type of " + this.property.name, this.property.returnType);
             console.trace("Stop");
@@ -129,9 +185,9 @@ export class HasMany {
 
     public getManyTableName(): string {
         const target = this.property.parameters[0].name;
-        const tableProp = this.root.properties.find( p => p.name===target);
+        const tableProp = this.root.properties.find(p => p.name === target);
         if (!tableProp) return null;
-        const table = new Table(this.modelFile,this.root,tableProp);
+        const table = new Table(this.modelFile, this.root, tableProp);
         return table.getTableName();
     }
 
@@ -150,7 +206,7 @@ export class HasOne {
 
     public getName(): string {
         let name = this.decorator["arguments"][2] && this.decorator["arguments"][2].text;
-        if (name && name[0]==="\"") name = name.slice(1,-1);
+        if (name && name[0] === "\"") name = name.slice(1, -1);
         if (!name) name = this.property.name.replace("_id", "").replace("_code", "").replace(/\"/g, "")
         return name;
     }
@@ -165,12 +221,12 @@ export class HasOne {
     }
 
     public getOneTableName(): string {
-        const lastDot =this.decorator.arguments[1].text.lastIndexOf(".");
-        if (lastDot<0) return null;
-        const propName =  this.decorator.arguments[1].text.slice(lastDot+1);
-        const prop = this.root.properties.find(p => p.name===propName);
+        const lastDot = this.decorator.arguments[1].text.lastIndexOf(".");
+        if (lastDot < 0) return null;
+        const propName = this.decorator.arguments[1].text.slice(lastDot + 1);
+        const prop = this.root.properties.find(p => p.name === propName);
         if (!prop) return null;
-        const table = new Table(this.modelFile,this.root,prop);
+        const table = new Table(this.modelFile, this.root, prop);
         return table.getTableName();
     }
 

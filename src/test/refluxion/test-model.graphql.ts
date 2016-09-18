@@ -17,8 +17,9 @@ export function getGraphQL( tables: Tables ) : GraphQLTypes {
 			 id : { type : GraphQL.GraphQLString  },
 			 content : { type : GraphQL.GraphQLString },
 			 date : { type : GraphQL.GraphQLString },
-			 archival_state : { type : GraphQL.GraphQLScalarType },
+			 archival_state : { type : GraphQL.GraphQLInt },
 			 author_id : { type : GraphQL.GraphQLString },
+			 loading : { type : GraphQL.GraphQLString },
 			 comments : {
 				 type: new GraphQL.GraphQLList(types.commentType ),
 				 resolve: resolver( tables.article.associations.comments ),
