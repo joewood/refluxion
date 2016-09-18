@@ -7,7 +7,6 @@ import * as GraphQL from "graphql";
 
 
 function fromISODate(value) {
-    // console.log("fromISO");
     try {
         if (!value) return null;
         return new Date(value);

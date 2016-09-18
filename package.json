@@ -1,6 +1,6 @@
 {
   "name": "refluxion",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Experimental Tool to generate Reudx and GraphQL classes from TypeScript model",
   "bin": {
     "refluxion": "bin/refluxion"

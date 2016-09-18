@@ -20,7 +20,6 @@ export function generateInterfaceForClass(modelFile:TsTypeInfo.FileDefinition, m
         const definition = propType.definitions && propType.definitions[0];
         const typeArgs = prop.getTypeArguments();
 
-        console.log(`Property ${prop.getName()} Enum:${prop.isEnum()} Prim:${prop.isPrimitive()} UnionL:${prop.isUnionLiteralType()}`);
         // for root tables
         if (typeArgs && typeArgs.length>0) {
             const typeArg = typeArgs[0];
