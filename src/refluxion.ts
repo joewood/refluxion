@@ -64,7 +64,7 @@ const outputBasename = Path.basename(mainFilename).replace(Path.extname(mainFile
 console.log(`Refluxion:\n\tModel: ${mainFilename}\n\tOutput: ${outputDir}${path.sep}${outputBasename}.*.ts`);
 
 const compilerOptions: TsTypeInfo.Options = {
-    showDebugMessages: true,
+    showDebugMessages: false,
 
     compilerOptions:
     {

@@ -124,25 +124,16 @@ export class EntityField {
     }
 
     public isUnionType(): boolean {
-        const defi =  this.property.type.definitions[0];
-        if (defi && defi instanceof TsTypeInfo.TypeAliasDefinition) {
-            return ((!!defi.type && defi.type.unionTypes.length>0) );
+        const definition =  this.property.type.definitions[0];
+        if (definition && definition instanceof TsTypeInfo.TypeAliasDefinition) {
+            return ((!!definition.type && definition.type.unionTypes.length>0) );
         }
         return this.property.type && this.property.type.unionTypes.length>0;
-        // const typeName = this.getTypeName();
-        // const ta = this.modelFile.typeAliases.find(e => typeName === e.name);
-        // return ta && ta.type && ta.type.unionTypes.length > 0;
     }
 
     public isEnum(): boolean {
-        const defi =  this.property.type.definitions[0];
-        if (!!defi) return defi instanceof TsTypeInfo.EnumDefinition;
-        const typeName = this.getTypeName();
-        const b= !!this.modelFile.enums.find(e => typeName === e.name);
-        if (b) {
-            debugger;
-        }
-        return false;
+        const definition =  this.property.type.definitions[0];
+        return definition && (definition instanceof TsTypeInfo.EnumDefinition);
     }
 
     public getName(): string {
