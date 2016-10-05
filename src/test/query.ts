@@ -1,14 +1,17 @@
+export interface Dict<T> {
+    [index:string]:T
+};
 
-function inspect(x:any,depth=10) : string {
-    if (depth==0) return "TOO DEEP";
+function inspect(x: any, depth = 10): string {
+    if (depth == 0) return "TOO DEEP";
     const keys = Object.keys(x);
     const fields = [] as string[];
-    for(let key of keys) {
+    for (let key of keys) {
         let field = key + ": ";
-        if (typeof x[key]==="string") {
+        if (typeof x[key] === "string") {
             field += `"${x[key]}"`;
-        } else if (typeof x[key]==="object") {
-            field += inspect(x[key],depth-1);
+        } else if (typeof x[key] === "object") {
+            field += inspect(x[key], depth - 1);
         } else {
             field += x[key];
         }
@@ -19,7 +22,7 @@ function inspect(x:any,depth=10) : string {
 
 export class Query {
 
-    constructor(public fields: string[], public nested: Dict<Query> = null, public where : GraphQLWhere = null) {
+    constructor(public fields: string[], public nested: Dict<Query> = null, public where: GraphQLWhere = null) {
     }
 
     public toGraphQL(tabSize = 1): string {
@@ -28,7 +31,7 @@ export class Query {
             const whereClause = (inspect(this.where, 10) as string).replace(/\'/g, "\"");
             buffer = buffer + `(${whereClause.slice(1, whereClause.length - 2)}) `;
         }
-            // buffer `{ ${operation} ${typeof query !== "string" ? query.toGraphQL() : query}\n}`;
+        // buffer `{ ${operation} ${typeof query !== "string" ? query.toGraphQL() : query}\n}`;
         buffer = buffer + "{ " + this.fields.join(" ") + "\n";
         if (this.nested) {
             buffer = buffer + Object.keys(this.nested).map(fieldName => {

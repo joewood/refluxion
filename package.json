@@ -1,6 +1,6 @@
 {
   "name": "refluxion",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Experimental Tool to generate Reudx and GraphQL classes from TypeScript model",
   "bin": {
     "refluxion": "bin/refluxion"
@@ -30,20 +30,20 @@
   "author": "Joe Wood",
   "license": "MIT",
   "devDependencies": {
-    "@types/commander": "2.3.29",
-    "@types/fs-extra": "0.0.31",
-    "@types/lodash": "4.14.34",
-    "@types/node": "6.0.38",
-    "@types/normalizr": "2.0.16",
+    "@types/commander": "2.3.30",
+    "@types/fs-extra": "0.0.33",
+    "@types/lodash": "4.14.37",
+    "@types/node": "6.0.43",
+    "@types/normalizr": "2.0.17",
     "normalizr": "2.2.1",
     "tslint": "3.15.1"
   },
   "dependencies": {
-    "commander": "2.9.0",
-    "fs-extra": "0.30.0",
-    "lodash": "4.15.0",
-    "source-map-support": "0.4.2",
-    "ts-type-info": "git+https://github.com/dsherret/ts-type-info.git#dev",
-    "typescript": "^2.0.2"
+    "commander": "^2.9.0",
+    "fs-extra": "^0.30.0",
+    "lodash": "^4.16.0",
+    "source-map-support": "^0.4.2",
+    "ts-type-info": "^6.0.4",
+    "typescript": "2.0.3"
   }
 }

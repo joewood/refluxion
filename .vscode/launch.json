@@ -5,7 +5,7 @@
             "name": "Launch",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/lib/refluxion.js",
+            "program": "${workspaceRoot}/src/refluxion.ts",
             "stopOnEntry": false,
             "args": [
  "--interfaces","--sequelize","--graphql","--client-ql","--normalizr","src/test/test-model.ts","-o","src/test"
@@ -19,7 +19,7 @@
             },
             "externalConsole": false,
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/bin"
+            "outDir": "${workspaceRoot}/lib"
         },
         {
             "name": "Launch Test",

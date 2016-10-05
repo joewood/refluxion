@@ -5,7 +5,7 @@ const hasOne = createHasOne<MyModel>();
 
 export enum ArchivalState { live, pending, archived };
 
-type Loading = "UNKNOWN" | "LOADING" | "LOADED";
+export type Loading = "UNKNOWN" | "LOADING" | "LOADED";
 // Define the root of the model. This serves as the root end-point on the server and the state of the app in Redux
 @root
 export class MyModel {
