@@ -1,7 +1,7 @@
 import * as TsTypeInfo from "ts-type-info";
 import fs = require("fs");
 import * as Path from "path";
-import { EntityField, appendLine, getDictReturnType, removePrefixI, toCamel, iterateRoot} from "./helpers";
+import { EntityField, appendLine, getDictReturnType, removePrefixI, toCamel, iterateRoot } from "./helpers";
 
 // export function generateTypesForClass(collectClass: TsTypeInfo.ClassDefinition, suffix: string, makeArrays: boolean): string {
 //     let buffer = "";
@@ -27,10 +27,14 @@ import { EntityField, appendLine, getDictReturnType, removePrefixI, toCamel, ite
 // }
 
 
-export function getSequelizeTypeofProp(modelFile:TsTypeInfo.FileDefinition, modelRoot: TsTypeInfo.ClassDefinition, entity: TsTypeInfo.ClassDefinition, p: TsTypeInfo.ClassPropertyDefinition): string {
-    const prop = new EntityField(modelFile,modelRoot,entity,p);    
-    
-    if (p.type.text.startsWith("\"")) return "Sequelize.STRING";
+export function getSequelizeTypeofProp(
+    modelFile: TsTypeInfo.FileDefinition,
+    modelRoot: TsTypeInfo.ClassDefinition,
+    entity: TsTypeInfo.ClassDefinition,
+    p: TsTypeInfo.ClassPropertyDefinition): string {
+    const prop = new EntityField(modelFile, modelRoot, entity, p);
+
+    if (p.type.text.startsWith("\"")) { return "Sequelize.STRING"; }
     if (prop.isEnum()) {
         return "Sequelize.INTEGER";
     }

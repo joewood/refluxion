@@ -33,17 +33,17 @@
     "@types/commander": "2.3.30",
     "@types/fs-extra": "0.0.33",
     "@types/lodash": "4.14.37",
-    "@types/node": "6.0.43",
+    "@types/node": "6.0.45",
     "@types/normalizr": "2.0.17",
     "normalizr": "2.2.1",
     "tslint": "3.15.1"
   },
   "dependencies": {
-    "commander": "^2.9.0",
-    "fs-extra": "^0.30.0",
-    "lodash": "^4.16.0",
-    "source-map-support": "^0.4.2",
-    "ts-type-info": "^6.0.4",
+    "commander": "2.9.0",
+    "fs-extra": "0.30.0",
+    "lodash": "4.16.4",
+    "source-map-support": "0.4.5",
+    "ts-type-info": "6.1.0",
     "typescript": "2.0.3"
   }
 }

@@ -55,7 +55,13 @@ export function generateGraphQLArgs(modelFile: TsTypeInfo.FileDefinition, modelR
     return buffer;
 }
 
-export function generateGraphQLAttributes(modelFile: TsTypeInfo.FileDefinition, modelRoot: TsTypeInfo.ClassDefinition, table: Table, whereClass: TsTypeInfo.ClassDefinition, tableName: string): string {
+export function generateGraphQLAttributes(
+    modelFile: TsTypeInfo.FileDefinition,
+    modelRoot: TsTypeInfo.ClassDefinition,
+    table: Table,
+    whereClass: TsTypeInfo.ClassDefinition,
+    tableName: string): string {
+    
     let buffer = "";
     const p = table.tableProperty;
     const entity = table.getTableType();

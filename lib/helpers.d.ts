@@ -57,6 +57,7 @@ export declare class HasOne {
     getOneTableName(): string;
 }
 export declare function appendLine(path: string, line: string): void;
+export declare function flushLines(): void;
 /** returns the type of a Dictionary used as the return type of the specified method */
 export declare function getDictReturnType(p: TsTypeInfo.ClassMethodDefinition): string;
 export declare function removePrefixI(c: TsTypeInfo.ClassDefinition | string): string;

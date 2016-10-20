@@ -2,9 +2,12 @@ import * as TsTypeInfo from "ts-type-info";
 import fs = require("fs-extra");
 import * as Path from "path";
 import path = require("path");
-require('source-map-support').install();
+require("source-map-support").install();
 
-import { initializeFile, lowerFirstChar, appendLine, getDictReturnType, removePrefixI, toCamel, Table, iterateRoot } from "./helpers";
+import {
+    initializeFile, lowerFirstChar, appendLine, flushLines,
+    getDictReturnType, removePrefixI, toCamel, Table, iterateRoot
+} from "./helpers";
 import { generateGraphQLAttributes, generateGraphQLEndPoints, generateGraphQLArgs } from "./graphql-generators";
 import { generateNormalizrDefine } from "./normalizr-generators";
 import { getPrimitives, getQueryClass } from "./graphql-client-generators";
@@ -108,7 +111,7 @@ if (clientQl) {
             console.warn("Cannot find Table Type for " + table.getTableName());
             return;
         }
-        appendLine(outputGraphQLClient, generateWhereInterface(table.getWhereClass()));
+        appendLine(outputGraphQLClient, generateWhereInterface(modelFile, root, table.getWhereClass()));
         appendLine(outputGraphQLClient, getPrimitives(table.getTableType()));
         appendLine(outputGraphQLClient, getQueryClass(table, table.getWhereClass().name));
         appendLine(outputGraphQLClient, generateNestedClass(table));
@@ -137,7 +140,7 @@ if (sequelize) {
 
     appendLine(outputSequelize, "export interface Tables {");
     iterateRoot(modelFile, root, (table) => {
-        if (!table.isTable) return;
+        if (!table.isTable) { return; }
         appendLine(outputSequelize, `\t${table.getTableName()}: ${table.getTableType().name}Model;`);
     });
     appendLine(outputSequelize, "}\n");
@@ -163,6 +166,10 @@ if (sequelize) {
     appendLine(outputSequelize, "export function initAssociations( tables : Tables) : void {");
     iterateRoot(modelFile, root, table => {
         if (!table.isTable) return;
+        if (!table.getTableName()) {
+            console.error("Cannot get the name for ", table);
+            throw "Invalid table name for " + table.tableProperty.name;
+        }
         const buffer = table.mapEntityRelationships(
             hasMany => `\ttables.${table.getTableName()}.hasMany(tables.${hasMany.getManyTableName()}, { as: "${hasMany.getName()}", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL"} )`,
             hasOne => `\ttables.${table.getTableName()}.belongsTo(tables.${hasOne.getOneTableName()}, { foreignKey: "${hasOne.property.name}", as: "${hasOne.getName()}", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL" })`
@@ -217,55 +224,58 @@ if (interfaces) {
     appendLine(outputPathOptional, generateInterfaceForClass(modelFile, root, root, "", false));
 
     iterateRoot(modelFile, root, table => {
-        if (!table.isTable) return;
+        if (!table.isTable) { return; }
         appendLine(outputPathOptional, generateInterfaceForClass(modelFile, root, table.getTableType(), "", false, true));
-    })
+    });
     appendLine(outputPathOptional, generateInterfaceForClass(modelFile, root, root, "Lists", true, true));
-
 }
 
 if (graphql) {
     const outputGraphQL = initializeFile(outputDir + "/" + outputBasename + ".graphql.ts");
     writtenFiles.push(outputGraphQL);
 
-    appendLine(outputGraphQL, 'import * as GraphQL from "graphql";');
-    appendLine(outputGraphQL, 'var graphqlSeq = require("graphql-sequelize");');
-    appendLine(outputGraphQL, 'let {resolver, attributeFields, defaultListArgs, defaultArgs} = graphqlSeq;');
-    appendLine(outputGraphQL, `import {Tables} from "./${outputBasename}.sequelize";`);
-    appendLine(outputGraphQL, 'import {GraphQLDate} from "./graphql-date";');
-    appendLine(outputGraphQL, 'export interface GraphQLTypes {');
+    appendLine(outputGraphQL, `import * as GraphQL from "graphql";`);
+    appendLine(outputGraphQL, `var graphqlSeq = require("graphql-sequelize");`);
+    appendLine(outputGraphQL, `let {resolver, attributeFields, defaultListArgs, defaultArgs} = graphqlSeq;`);
+    appendLine(outputGraphQL, `import { Tables } from "./${outputBasename}.sequelize";`);
+    appendLine(outputGraphQL, `import * as Model from "./${justRelativeFilename}";\n`);
+
+    appendLine(outputGraphQL, `import {GraphQLDate} from "./graphql-date";`);
+    appendLine(outputGraphQL, `export interface GraphQLTypes {`);
     iterateRoot(modelFile, root, table => {
-        if (!table.isTable) return;
+        if (!table.isTable) { return; }
         appendLine(outputGraphQL, `\t${toCamel(table.getTableType().name)}Type ?: GraphQL.GraphQLObjectType;`);
     });
-    appendLine(outputGraphQL, '}\n');
+    appendLine(outputGraphQL, `}\n`);
 
-    appendLine(outputGraphQL, 'export function getGraphQL( tables: Tables ) : GraphQLTypes {');
-    appendLine(outputGraphQL, '\tconst types : GraphQLTypes = {};');
+    appendLine(outputGraphQL, `export function getGraphQL( tables: Tables ) : GraphQLTypes {`);
+    appendLine(outputGraphQL, `\tconst types : GraphQLTypes = {};`);
 
     iterateRoot(modelFile, root, table => {
-        if (!table.isTable) return;
+        if (!table.isTable) { return; }
         appendLine(outputGraphQL, generateGraphQLAttributes(modelFile, root, table, table.getWhereClass(), table.getTableName()) + "\n");
     });
     appendLine(outputGraphQL, "\treturn types;\n}\n");
 
     iterateRoot(modelFile, root, table => {
-        if (!table.isTable) return;
+        if (!table.isTable) { return; }
         appendLine(outputGraphQL, generateGraphQLArgs(modelFile, root, table, table.tableProperty, table.getWhereClass()) + "\n");
     });
 
     iterateRoot(modelFile, root, table => {
         if (table.isTable) {
-            appendLine(outputGraphQL, generateGraphQLEndPoints(table.tableProperty, table.getTableType(), table.getWhereClass(), table.getTableName()) + "\n");
+            appendLine(outputGraphQL,
+                generateGraphQLEndPoints(table.tableProperty, table.getTableType(), table.getWhereClass(), table.getTableName()) + "\n");
         }
     });
     appendLine(outputGraphQL, "export interface GraphQLWhere {}\n");
 
     iterateRoot(modelFile, root, table => {
-        if (!table.isTable) return;
-        appendLine(outputGraphQL, generateWhereInterface(table.getWhereClass()));
+        if (!table.isTable) { return; }
+        appendLine(outputGraphQL, generateWhereInterface(modelFile, root, table.getWhereClass()));
     });
 }
+flushLines();
 console.log("Writen Files:\n" + writtenFiles.join("\n"));
 
 

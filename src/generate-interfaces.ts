@@ -1,9 +1,9 @@
 import * as TsTypeInfo from "ts-type-info";
 import fs = require("fs");
 import * as Path from "path";
-import { appendLine, Table, getDictReturnType, EntityField, removePrefixI, toCamel, iterateRoot} from "./helpers";
+import { appendLine, Table, getDictReturnType, EntityField, removePrefixI, toCamel, iterateRoot } from "./helpers";
 
-export function generateInterfaceForClass(modelFile:TsTypeInfo.FileDefinition, modelRoot:TsTypeInfo.ClassDefinition, collectClass: TsTypeInfo.ClassDefinition, suffix: string, makeArrays: boolean, optional=false): string {
+export function generateInterfaceForClass(modelFile: TsTypeInfo.FileDefinition, modelRoot: TsTypeInfo.ClassDefinition, collectClass: TsTypeInfo.ClassDefinition, suffix: string, makeArrays: boolean, optional = false): string {
     if (!collectClass) {
         console.trace("Type for Class is null");
         return "<NULL>";
@@ -13,7 +13,7 @@ export function generateInterfaceForClass(modelFile:TsTypeInfo.FileDefinition, m
     buffer += `\n// created from class ` + collectClass.name + "\n";
     buffer += `\nexport interface ${name} extends Base {\n`;
     buffer += collectClass.properties.map(p => {
-        const prop = new EntityField(modelFile,modelRoot,collectClass,p);
+        const prop = new EntityField(modelFile, modelRoot, collectClass, p);
 
         let typeName = prop.getTypeName();
         const propType = p.type;
@@ -21,7 +21,7 @@ export function generateInterfaceForClass(modelFile:TsTypeInfo.FileDefinition, m
         const typeArgs = prop.getTypeArguments();
 
         // for root tables
-        if (typeArgs && typeArgs.length>0) {
+        if (typeArgs && typeArgs.length > 0) {
             const typeArg = typeArgs[0];
             typeName = makeArrays ? ("Model." + typeArg.text + "[]") : typeName.replace(typeArg.text, "Model." + typeArg.text);
         } else if (prop.isEnum()) {
@@ -52,7 +52,10 @@ export function generateNestedClass(table: Table): string {
 }
 
 
-export function generateWhereInterface(collectClass: TsTypeInfo.ClassDefinition): string {
+export function generateWhereInterface(
+    modelFile: TsTypeInfo.FileDefinition,
+    modelRoot: TsTypeInfo.ClassDefinition,
+    collectClass: TsTypeInfo.ClassDefinition): string {
     let buffer = "";
     if (!collectClass) {
         console.trace("Type Filter for Class is null");
@@ -63,7 +66,20 @@ export function generateWhereInterface(collectClass: TsTypeInfo.ClassDefinition)
     buffer += "\t order?: string;\n";
     buffer += "\t offset?: number;\n";
     buffer += "\t limit?: number;\n";
-    buffer += collectClass.properties.map(p => `\t${p.name}? : ${p.type.text};`).join('\n') + "\n";
+    for (let p of collectClass.properties) {
+        const fp = new EntityField(modelFile, modelRoot, collectClass, p);
+        let typeName = fp.getTypeName();
+        if (fp.isEnum()) {
+            typeName = "Model." + typeName;
+        } else if (fp.isPrimitive()) {
+            // do nothing
+        } else if (fp.isUnionLiteralType()) {
+            typeName = fp.property.type.text;
+        } else {
+            typeName = "Model." + typeName;
+        }
+        buffer +=  `\t${fp.getName()}? : ${typeName};\n`;
+    }
     buffer += "}\n\n";
     return buffer;
 }

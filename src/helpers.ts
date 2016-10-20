@@ -44,11 +44,16 @@ export class Table {
     public getTableName(): string {
         const tableNameDec = this.tableProperty.decorators.find(d => d.name === "useTable");
         let tableName = this.tableProperty.name;
-        if (tableName.slice(-1) === "s") tableName = tableName.slice(0, -1);
-        tableName = camelToUnderscore(tableName);
-        if (!!tableNameDec && !!tableNameDec["arguments"] && !!tableNameDec["arguments"][0]) {
+        if (!!tableNameDec) {
+            const args = tableNameDec.arguments;
+            if (!args || args.length === 0) {
+                throw "useTable with no name " + tableName;
+            }
             tableName = tableNameDec["arguments"][0].text;
             if (tableName.length > 1) tableName = tableName.slice(1, -1);
+        } else {
+            if (tableName.slice(-1) === "s") tableName = tableName.slice(0, -1);
+            tableName = camelToUnderscore(tableName);
         }
         return tableName;
     }
@@ -124,15 +129,15 @@ export class EntityField {
     }
 
     public isUnionType(): boolean {
-        const definition =  this.property.type.definitions[0];
+        const definition = this.property.type.definitions[0];
         if (definition && definition instanceof TsTypeInfo.TypeAliasDefinition) {
-            return ((!!definition.type && definition.type.unionTypes.length>0) );
+            return ((!!definition.type && definition.type.unionTypes.length > 0));
         }
-        return this.property.type && this.property.type.unionTypes.length>0;
+        return this.property.type && this.property.type.unionTypes.length > 0;
     }
 
     public isEnum(): boolean {
-        const definition =  this.property.type.definitions[0];
+        const definition = this.property.type.definitions[0];
         return definition && (definition instanceof TsTypeInfo.EnumDefinition);
     }
 
@@ -186,9 +191,19 @@ export class HasMany {
     }
 
     public getManyTableName(): string {
-        const target = this.property.parameters[0].name;
-        const tableProp = this.root.properties.find(p => p.name === target);
-        if (!tableProp) return null;
+        const param = this.property.parameters[0];
+        if (!param) { throw "No Parameter for getMany " + this.property.name; }
+        if (!param.type.isArrayType()) { throw "getMany parameter type is not an array " + this.property.name; }
+        const manyType = param.type.arrayElementType.definitions[0].name;
+        if (!manyType) { throw "Cannot find definition for type used in getMany " + this.property.name; }
+        const tableProp = this.root.properties.find(p => {
+            const tab = new Table(this.modelFile, this.root, p);
+            if (!tab.isTable) { return false; }
+            return tab.getTableType().name === manyType;
+        });
+        if (!tableProp) {
+            throw "Cannot find Root Property for " + manyType;
+        }
         const table = new Table(this.modelFile, this.root, tableProp);
         return table.getTableName();
     }
@@ -208,9 +223,9 @@ export class HasOne {
 
     public getName(): string {
         let name = this.decorator["arguments"][2] && this.decorator["arguments"][2].text;
-        if (name && name[0] === "\"") name = name.slice(1, -1);
-        if (!name) name = this.property.name.replace("_id", "").replace("_code", "").replace(/\"/g, "")
-        return name;
+        if (name && name[0] === "\"") { name = name.slice(1, -1); }
+        if (!name) { name = this.property.name.replace("_id", "").replace("_code", "").replace(/\"/g, ""); }
+        return "get_" + name;
     }
 
     public getOneType(): TsTypeInfo.ClassDefinition {
@@ -234,8 +249,17 @@ export class HasOne {
 
 }
 
+const lines: { [filename: string]: string[] } = {};
+
 export function appendLine(path: string, line: string) {
-    fs.appendFileSync(path, line + "\n");
+    if (!lines[path]) { lines[path] = []; }
+    lines[path].push(line);
+}
+
+export function flushLines() {
+    for (let f of Object.keys(lines)) {
+        fs.writeFileSync(f, lines[f].join("\n"));
+    }
 }
 
 /** returns the type of a Dictionary used as the return type of the specified method */
