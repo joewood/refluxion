@@ -35,7 +35,7 @@ program.version("0.0.1")
 
 const rawOutput = program["output"];
 if (!fs.existsSync(rawOutput)) {
-    console.log("Warning - cannot find dir " + rawOutput + ". mkdir.")
+    console.log("Warning - cannot find dir " + rawOutput + ". mkdir.");
     fs.mkdirSync(rawOutput);
 }
 
@@ -46,7 +46,7 @@ rawInputs.forEach(ri => {
         console.error("Cannot find input file " + path.resolve(ri));
         process.exit(0);
     }
-})
+});
 
 const inputFilenames = program.args; // process.argv.slice(3).map(arg => Path.resolve(process.cwd() + "/" + arg));
 const mainFilename = Path.resolve(inputFilenames[inputFilenames.length - 1]);
@@ -68,10 +68,9 @@ console.log(`Refluxion:\n\tModel: ${mainFilename}\n\tOutput: ${outputDir}${path.
 
 const compilerOptions: TsTypeInfo.Options = {
     showDebugMessages: false,
-
     compilerOptions:
     {
-        target: "ES5",
+        target: "ES6",
         module: "commonjs",
         preserveConstEnums: true,
         experimentalDecorators: true,
@@ -79,11 +78,8 @@ const compilerOptions: TsTypeInfo.Options = {
         // "lib": [
         //     "es2015",
         //     "es2016",
-        //     "es2017",
-        //     "es2017.object",
-        //     "es2015.promise"
         // ],
-        "types": ["node"]
+        "types": []
     } as TsTypeInfo.CompilerOptions
 
 };
@@ -106,7 +102,7 @@ if (clientQl) {
     appendLine(outputGraphQLClient, `import * as Model from "./${justRelativeFilename}";`);
 
     iterateRoot(modelFile, root, table => {
-        if (!table.isTable) return;
+        if (!table.isTable) { return; }
         if (!table.getTableType()) {
             console.warn("Cannot find Table Type for " + table.getTableName());
             return;
@@ -128,12 +124,12 @@ if (sequelize) {
 
     // output interfaces for Sequelize Model
     iterateRoot(modelFile, root, table => {
-        if (!table.isTable) return;
-        appendLine(outputSequelize, `interface ${table.getTableType().name}Model extends Sequelize.Model<Interfaces.${table.getTableInterfaceTypeName()},any> {`)
+        if (!table.isTable) { return; }
+        appendLine(outputSequelize, `interface ${table.getTableType().name}Model extends Sequelize.Model<Interfaces.${table.getTableInterfaceTypeName()},any> {`);
         appendLine(outputSequelize, `\tassociations : {`);
         const buffer = table.mapEntityRelationships(
             hasMany => `\t\t${hasMany.getName()}: Sequelize.Model<Interfaces.${hasMany.getManyTypeInterfaceName()},any>;`,
-            hasOne => `\t\t${hasOne.getName()}: Sequelize.Model<Interfaces.${hasOne.getOneInterfaceTypeName()},any>;`)
+            hasOne => `\t\t${hasOne.getName()}: Sequelize.Model<Interfaces.${hasOne.getOneInterfaceTypeName()},any>;`);
         appendLine(outputSequelize, buffer + "\t}");
         appendLine(outputSequelize, "}\n");
     });
@@ -149,11 +145,11 @@ if (sequelize) {
     appendLine(outputSequelize, "\treturn {");
 
     iterateRoot(modelFile, root, (table) => {
-        if (!table.isTable) return;
+        if (!table.isTable) { return; }
         appendLine(outputSequelize, `\t\t${table.getTableName()} : sequelize.define("${table.getTableName()}", <Sequelize.DefineAttributes>Object.assign({},coreFields,{`);
         for (let field of table.getTableType().properties) {
             let typeName = field.type.text;
-            if (field.name === "id") continue;
+            if (field.name === "id") { continue; }
             appendLine(outputSequelize, `\t\t\t${field.name}: { type: ${getSequelizeTypeofProp(modelFile, root, table.getTableType(), field)} },`);
         }
         appendLine(outputSequelize, "\t\t}),");
@@ -165,7 +161,7 @@ if (sequelize) {
 
     appendLine(outputSequelize, "export function initAssociations( tables : Tables) : void {");
     iterateRoot(modelFile, root, table => {
-        if (!table.isTable) return;
+        if (!table.isTable) { return; }
         if (!table.getTableName()) {
             console.error("Cannot get the name for ", table);
             throw "Invalid table name for " + table.tableProperty.name;
@@ -188,11 +184,11 @@ if (normalizr) {
     writtenFiles.push(outputNormalizr);
     appendLine(outputNormalizr, "import { normalize, Schema, arrayOf, valuesOf } from \"normalizr\";");
     iterateRoot(modelFile, root, table => {
-        if (!table.isTable) return;
+        if (!table.isTable) { return; }
         appendLine(outputNormalizr, `export var ${toCamel(table.getTableType().name)} = new Schema(\"${table.tableProperty.name}\");`);
     });
     iterateRoot(modelFile, root, table => {
-        if (!table.isTable) return;
+        if (!table.isTable) { return; }
         appendLine(outputNormalizr, generateNormalizrDefine(table));
     });
 
@@ -209,9 +205,9 @@ if (interfaces) {
     appendLine(outputInterfaces, generateInterfaceForClass(modelFile, root, root, "", false));
 
     iterateRoot(modelFile, root, table => {
-        if (!table.isTable) return;
+        if (!table.isTable) { return; }
         appendLine(outputInterfaces, generateInterfaceForClass(modelFile, root, table.getTableType(), "", false));
-    })
+    });
     appendLine(outputInterfaces, generateInterfaceForClass(modelFile, root, root, "Lists", true));
 
     const outputPathOptional = initializeFile(outputDir + "/" + outputBasename + ".optional-interfaces.ts");

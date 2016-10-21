@@ -1,6 +1,6 @@
 "use strict";
 var TsTypeInfo = require("ts-type-info");
-var gd = TsTypeInfo.getInfoFromFiles(["./test-file.ts"], {
+var gd = TsTypeInfo.getInfoFromFiles(["../src/test/test-model.ts"], {
     showDebugMessages: true,
     compilerOptions: {
         "target": "ES5",

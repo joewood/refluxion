@@ -6,7 +6,7 @@
     "refluxion": "bin/refluxion"
   },
   "scripts": {
-    "test": "node lib/refluxion --interfaces --sequelize --graphql --client-ql --normalizr src/test/test-model.ts -o src/test/refluxion"
+    "test": "node lib/refluxion --interfaces --sequelize --graphql --client-ql --normalizr src/test/test-model.min.ts -o src/test/refluxion"
   },
   "repository": {
     "type": "git",

@@ -1,7 +1,9 @@
 import * as GraphQL from "graphql";
 var graphqlSeq = require("graphql-sequelize");
 let {resolver, attributeFields, defaultListArgs, defaultArgs} = graphqlSeq;
-import {Tables} from "./test-model.sequelize";
+import { Tables } from "./test-model.sequelize";
+import * as Model from "./test-model";
+
 import {GraphQLDate} from "./graphql-date";
 export interface GraphQLTypes {
 	articleType ?: GraphQL.GraphQLObjectType;
@@ -25,9 +27,9 @@ export function getGraphQL( tables: Tables ) : GraphQLTypes {
 				 resolve: resolver( tables.article.associations.comments ),
 			 },
 
-			 author : {
+			 get_author : {
 				 type: types.userType,
-				 resolve: resolver( tables.article.associations.author ),
+				 resolve: resolver( tables.article.associations.get_author ),
 			},
 
 		})
@@ -42,14 +44,14 @@ export function getGraphQL( tables: Tables ) : GraphQLTypes {
 			 date : { type : GraphQLDate },
 			 author_id : { type : GraphQL.GraphQLString },
 			 article_id : { type : GraphQL.GraphQLString },
-			 author : {
+			 get_author : {
 				 type: types.userType,
-				 resolve: resolver( tables.comment.associations.author ),
+				 resolve: resolver( tables.comment.associations.get_author ),
 			},
 
-			 article : {
+			 get_article : {
 				 type: types.articleType,
-				 resolve: resolver( tables.comment.associations.article ),
+				 resolve: resolver( tables.comment.associations.get_article ),
 			},
 
 		})
@@ -187,5 +189,4 @@ export interface UsersQuery extends GraphQLWhere {
 	id? : string;
 	email? : string;
 }
-
 

@@ -55,4 +55,3 @@ export interface IMyModelLists extends Base {
 	comments: Model.Comment[];
 	users: Model.User[];
 }
-

@@ -6,14 +6,14 @@ interface Dict<T> { [index:string]:T; };
 interface ArticleModel extends Sequelize.Model<Interfaces.IArticle,any> {
 	associations : {
 		comments: Sequelize.Model<Interfaces.IComment,any>;
-		author: Sequelize.Model<Interfaces.IUser,any>;
+		get_author: Sequelize.Model<Interfaces.IUser,any>;
 	}
 }
 
 interface CommentModel extends Sequelize.Model<Interfaces.IComment,any> {
 	associations : {
-		author: Sequelize.Model<Interfaces.IUser,any>;
-		article: Sequelize.Model<Interfaces.IArticle,any>;
+		get_author: Sequelize.Model<Interfaces.IUser,any>;
+		get_article: Sequelize.Model<Interfaces.IArticle,any>;
 	}
 }
 
@@ -60,10 +60,10 @@ export function initEntities( sequelize : Sequelize.Sequelize, coreFields: Seque
 }
 export function initAssociations( tables : Tables) : void {
 	tables.article.hasMany(tables.comment, { as: "comments", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL"} )
-	tables.article.belongsTo(tables.user, { foreignKey: "author_id", as: "author", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL" })
+	tables.article.belongsTo(tables.user, { foreignKey: "author_id", as: "get_author", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL" })
 
-	tables.comment.belongsTo(tables.user, { foreignKey: "author_id", as: "author", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL" })
-	tables.comment.belongsTo(tables.article, { foreignKey: "article_id", as: "article", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL" })
+	tables.comment.belongsTo(tables.user, { foreignKey: "author_id", as: "get_author", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL" })
+	tables.comment.belongsTo(tables.article, { foreignKey: "article_id", as: "get_article", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL" })
 
 	tables.user.hasMany(tables.article, { as: "articles", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL"} )
 	tables.user.hasMany(tables.comment, { as: "comments", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL"} )

@@ -23,7 +23,7 @@ export class ArticleQuery extends Query {
 
 export interface IArticleNested {
 	comments?: CommentQuery;
-	author?: UserQuery;
+	get_author?: UserQuery;
 }
 
 export interface CommentsQuery extends GraphQLWhere {
@@ -47,8 +47,8 @@ export class CommentQuery extends Query {
 
 
 export interface ICommentNested {
-	author?: UserQuery;
-	article?: ArticleQuery;
+	get_author?: UserQuery;
+	get_article?: ArticleQuery;
 }
 
 export interface UsersQuery extends GraphQLWhere {
@@ -75,4 +75,3 @@ export interface IUserNested {
 	articles?: ArticleQuery;
 	comments?: CommentQuery;
 }
-

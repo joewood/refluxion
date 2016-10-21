@@ -1,5 +1,5 @@
 import * as TsTypeInfo from "ts-type-info";
-const gd = TsTypeInfo.getInfoFromFiles(["./test-file.ts"], {
+const gd = TsTypeInfo.getInfoFromFiles(["../src/test/test-model.ts"], {
     showDebugMessages: true,
     compilerOptions:
     {
