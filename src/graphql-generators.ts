@@ -7,7 +7,7 @@ import { appendLine, getDictReturnType, removePrefixI, toCamel, Table, iterateRo
 
 function getGraphQLTypeofProp(modelFile: TsTypeInfo.FileDefinition, modelRoot: TsTypeInfo.ClassDefinition, entity: TsTypeInfo.ClassDefinition, p: TsTypeInfo.BasePropertyDefinition): string {
     const prop = new EntityField(modelFile, modelRoot, entity, p);
-    if (p.name === "id") return "GraphQL.GraphQLID";
+    if (p.name === "id" || p.name === "ID") return "GraphQL.GraphQLID";
     if (p.type.text.startsWith("\"")) return "GraphQL.GraphQLString";
     if (prop.isEnum()) {
         return "GraphQL.GraphQLInt";
@@ -46,7 +46,7 @@ function getInnerWhereClass(modelFile: TsTypeInfo.FileDefinition, modelRoot: TsT
 export function generateGraphQLArgs(modelFile: TsTypeInfo.FileDefinition, modelRoot: TsTypeInfo.ClassDefinition, table: Table, p: TsTypeInfo.ClassPropertyDefinition, whereClass: TsTypeInfo.ClassDefinition): string {
     const entity: TsTypeInfo.ClassDefinition = table.getTableType();
     let buffer = "";
-    buffer += `export const ${p.name}Args : GraphQL.GraphQLFieldConfigArgumentMap = {\n`;
+    buffer += `export const ${p.name}Args /*: GraphQL.GraphQLFieldConfigArgumentMap */ = {\n`;
     buffer += getInnerWhereClass(modelFile, modelRoot, entity, whereClass.properties.map(pp => pp), p.name);
     buffer += "\t limit: { type: GraphQL.GraphQLInt },\n";
     buffer += "\t offset: { type: GraphQL.GraphQLInt },\n";
@@ -61,17 +61,20 @@ export function generateGraphQLAttributes(
     table: Table,
     whereClass: TsTypeInfo.ClassDefinition,
     tableName: string): string {
-    
+
     let buffer = "";
     const p = table.tableProperty;
     const entity = table.getTableType();
     buffer += `\t types.${toCamel(entity.name)}Type = new GraphQL.GraphQLObjectType({\n`;
     buffer += `\t\t name: "${entity.name}",\n`;
-    //"${collectClass.name}",\n`;
     buffer += `\t\t fields: () => ({\n`;
-    buffer += `\t\t\t id : { type : GraphQL.GraphQLString  },\n`;
+    // buffer += `\t\t\t id: { type : GraphQL.GraphQLString  },\n`;
     for (let p of entity.properties) {
-        if (p.name == "id") continue;
+        if ((p as TsTypeInfo.ClassPropertyDefinition).kind!=TsTypeInfo.ClassPropertyKind.Normal) continue;
+        if (p.name === "id" || p.name === "ID") {
+            buffer += `\t\t\t ${p.name} : { type : ${getGraphQLTypeofProp(modelFile, modelRoot, entity, p)}},\n`;
+            continue;
+        }
         buffer += `\t\t\t ${p.name} : { type : ${getGraphQLTypeofProp(modelFile, modelRoot, entity, p)} },\n`;
     }
     buffer += table.mapEntityRelationships(
@@ -90,7 +93,7 @@ export function generateGraphQLAttributes(
 
 export function generateGraphQLEndPoints(p: TsTypeInfo.ClassPropertyDefinition, collectClass: TsTypeInfo.ClassDefinition, whereClass: TsTypeInfo.ClassDefinition, tableName: string): string {
     let buffer = "";
-    buffer += `export function get${removePrefixI(collectClass)}( tables : Tables, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig {\n`;
+    buffer += `export function get${removePrefixI(collectClass)}( tables : Tables, types: GraphQLTypes ) /*: GraphQL.GraphQLFieldConfig*/ {\n`;
     buffer += `\t return {\n`;
     buffer += `\t\t type: types.${toCamel(collectClass.name)}Type,\n`;
     buffer += `\t\t args: defaultArgs(tables.${tableName}),\n`;
@@ -98,7 +101,7 @@ export function generateGraphQLEndPoints(p: TsTypeInfo.ClassPropertyDefinition, 
     buffer += `\t};\n`;
     buffer += `}\n\n`;
 
-    buffer += `export function get_${p.name}( tables : Tables, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig  {\n`;
+    buffer += `export function get_${p.name}( tables : Tables, types: GraphQLTypes ) /*: GraphQL.GraphQLFieldConfig */ {\n`;
     buffer += `\t return {\n`;
     buffer += `\t\t type: new GraphQL.GraphQLList(types.${toCamel(collectClass.name)}Type),\n`;
     buffer += `\t\t args: ${p.name}Args,\n`;

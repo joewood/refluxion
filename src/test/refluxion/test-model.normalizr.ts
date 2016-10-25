@@ -3,17 +3,16 @@ export var article = new Schema("articles");
 export var comment = new Schema("comments");
 export var user = new Schema("users");
 article.define({
-	comments : arrayOf(comment),
-	author : user,
+	get_comments : arrayOf(comment),
+	get_author : user,
 });
 
 comment.define({
-	author : user,
-	article : article,
+	get_author : user,
+	get_article : article,
 });
 
 user.define({
-	articles : arrayOf(article),
-	comments : arrayOf(comment),
+	get_articles : arrayOf(article),
+	get_comments : arrayOf(comment),
 });
-

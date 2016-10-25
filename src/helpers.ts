@@ -173,7 +173,7 @@ export class HasMany {
 
     public getName() {
         const noGet = this.property.name.replace("get", "");
-        return noGet.slice(0, 1).toLowerCase() + noGet.slice(1);
+        return "get_" + noGet.slice(0, 1).toLowerCase() + noGet.slice(1);
     }
 
     public getManyType(): TsTypeInfo.ClassDefinition {

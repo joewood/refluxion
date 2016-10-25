@@ -1,4 +1,5 @@
 "use strict";
+;
 function inspect(x, depth) {
     if (depth === void 0) { depth = 10; }
     if (depth == 0)
@@ -54,3 +55,4 @@ function toGraphQlQueryString(operation, query) {
     return "{ " + operation + " " + (typeof query !== "string" ? query.toGraphQL() : query) + "\n}";
 }
 exports.toGraphQlQueryString = toGraphQlQueryString;
+//# sourceMappingURL=query.js.map

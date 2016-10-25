@@ -4,8 +4,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var refluxion_1 = require("refluxion");
-exports.articleFields = ["content", "date", "archival_state", "id", "author_id"];
+var query_1 = require("./query");
+exports.articleFields = ["content", "date", "archival_state", "ID", "id", "author_id", "loading"];
 var ArticleQuery = (function (_super) {
     __extends(ArticleQuery, _super);
     function ArticleQuery(primitives, nested, where, options) {
@@ -15,7 +15,7 @@ var ArticleQuery = (function (_super) {
         _super.call(this, primitives, nested, where);
     }
     return ArticleQuery;
-}(refluxion_1.Query));
+}(query_1.Query));
 exports.ArticleQuery = ArticleQuery;
 exports.commentFields = ["content", "date", "id", "author_id", "article_id"];
 var CommentQuery = (function (_super) {
@@ -27,7 +27,7 @@ var CommentQuery = (function (_super) {
         _super.call(this, primitives, nested, where);
     }
     return CommentQuery;
-}(refluxion_1.Query));
+}(query_1.Query));
 exports.CommentQuery = CommentQuery;
 exports.userFields = ["email", "id", "numberComments", "gender"];
 var UserQuery = (function (_super) {
@@ -39,6 +39,6 @@ var UserQuery = (function (_super) {
         _super.call(this, primitives, nested, where);
     }
     return UserQuery;
-}(refluxion_1.Query));
+}(query_1.Query));
 exports.UserQuery = UserQuery;
 //# sourceMappingURL=test-model.client-graphql.js.map

@@ -10,8 +10,8 @@ export interface ArticlesQuery extends GraphQLWhere {
 }
 
 
-export type ArticlePrimitives = "content" | "date" | "archival_state" | "id" | "author_id" | "loading";
-export const articleFields : ArticlePrimitives[] = ["content", "date", "archival_state", "id", "author_id", "loading"];
+export type ArticlePrimitives = "content" | "date" | "archival_state" | "ID" | "id" | "author_id" | "loading";
+export const articleFields : ArticlePrimitives[] = ["content", "date", "archival_state", "ID", "id", "author_id", "loading"];
 
 
 export class ArticleQuery extends Query {
@@ -22,8 +22,8 @@ export class ArticleQuery extends Query {
 
 
 export interface IArticleNested {
-	comments?: CommentQuery;
-	author?: UserQuery;
+	get_comments?: CommentQuery;
+	get_author?: UserQuery;
 }
 
 export interface CommentsQuery extends GraphQLWhere {
@@ -47,8 +47,8 @@ export class CommentQuery extends Query {
 
 
 export interface ICommentNested {
-	author?: UserQuery;
-	article?: ArticleQuery;
+	get_author?: UserQuery;
+	get_article?: ArticleQuery;
 }
 
 export interface UsersQuery extends GraphQLWhere {
@@ -72,7 +72,6 @@ export class UserQuery extends Query {
 
 
 export interface IUserNested {
-	articles?: ArticleQuery;
-	comments?: CommentQuery;
+	get_articles?: ArticleQuery;
+	get_comments?: CommentQuery;
 }
-

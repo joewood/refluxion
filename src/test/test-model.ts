@@ -1,4 +1,4 @@
-import { integer, hasMany, createHasOne, root, queryBy, isIsoDate, length } from "./refluxion/decorators";
+import { useTable, integer, hasMany, createHasOne, root, queryBy, isIsoDate, length } from "./refluxion/decorators";
 import { Dict } from "./refluxion/query";
 
 const hasOne = createHasOne<MyModel>();
@@ -9,12 +9,15 @@ export type Loading = "UNKNOWN" | "LOADING" | "LOADED";
 // Define the root of the model. This serves as the root end-point on the server and the state of the app in Redux
 @root
 export class MyModel {
+    @useTable("articles")
     @queryBy(ArticlesQuery)
     public articles: Dict<Article>;
 
+    @useTable("comments")
     @queryBy(CommentsQuery)
     public comments: Dict<Comment>;
 
+    @useTable("users")
     @queryBy(UsersQuery)
     public users: Dict<User>;
 
@@ -27,7 +30,10 @@ export class Article {
     public archival_state: ArchivalState;
 
     @length(255)
-    public id: string;
+    public ID: string;
+
+    @length(255)
+    public get id() { return this.ID; }
 
     @hasOne(User, master => master.users)
     public author_id: string;

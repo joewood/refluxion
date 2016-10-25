@@ -21,6 +21,7 @@ export interface IArticle extends Base {
 	content: string;
 	date: string;
 	archival_state: Model.ArchivalState;
+	ID: string;
 	id: string;
 	author_id: string;
 	loading: Model.Loading;
@@ -55,4 +56,3 @@ export interface IMyModelLists extends Base {
 	comments: Model.Comment[];
 	users: Model.User[];
 }
-

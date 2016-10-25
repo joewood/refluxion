@@ -19,13 +19,16 @@ var MyModel = (function () {
     function MyModel() {
     }
     __decorate([
-        decorators_1.queryBy(ArticlesWhere)
+        decorators_1.useTable("articles"),
+        decorators_1.queryBy(ArticlesQuery)
     ], MyModel.prototype, "articles", void 0);
     __decorate([
-        decorators_1.queryBy(CommentsWhere)
+        decorators_1.useTable("comments"),
+        decorators_1.queryBy(CommentsQuery)
     ], MyModel.prototype, "comments", void 0);
     __decorate([
-        decorators_1.queryBy(UsersWhere)
+        decorators_1.useTable("users"),
+        decorators_1.queryBy(UsersQuery)
     ], MyModel.prototype, "users", void 0);
     MyModel = __decorate([
         decorators_1.root
@@ -37,13 +40,21 @@ exports.MyModel = MyModel;
 var Article = (function () {
     function Article() {
     }
+    Object.defineProperty(Article.prototype, "id", {
+        get: function () { return this.ID; },
+        enumerable: true,
+        configurable: true
+    });
     Article.prototype.getComments = function (comments) {
         var _this = this;
         return comments.filter(function (com) { return _this.id === com.article_id; });
     };
     __decorate([
         decorators_1.length(255)
-    ], Article.prototype, "id", void 0);
+    ], Article.prototype, "ID", void 0);
+    __decorate([
+        decorators_1.length(255)
+    ], Article.prototype, "id", null);
     __decorate([
         hasOne(User, function (master) { return master.users; })
     ], Article.prototype, "author_id", void 0);
@@ -53,18 +64,18 @@ var Article = (function () {
     return Article;
 }());
 exports.Article = Article;
-var ArticlesWhere = (function () {
-    function ArticlesWhere() {
+var ArticlesQuery = (function () {
+    function ArticlesQuery() {
     }
     __decorate([
         decorators_1.length(255)
-    ], ArticlesWhere.prototype, "id", void 0);
+    ], ArticlesQuery.prototype, "id", void 0);
     __decorate([
         decorators_1.length(255)
-    ], ArticlesWhere.prototype, "author_id", void 0);
-    return ArticlesWhere;
+    ], ArticlesQuery.prototype, "author_id", void 0);
+    return ArticlesQuery;
 }());
-exports.ArticlesWhere = ArticlesWhere;
+exports.ArticlesQuery = ArticlesQuery;
 var Comment = (function () {
     function Comment() {
     }
@@ -85,12 +96,12 @@ var Comment = (function () {
     return Comment;
 }());
 exports.Comment = Comment;
-var CommentsWhere = (function () {
-    function CommentsWhere() {
+var CommentsQuery = (function () {
+    function CommentsQuery() {
     }
-    return CommentsWhere;
+    return CommentsQuery;
 }());
-exports.CommentsWhere = CommentsWhere;
+exports.CommentsQuery = CommentsQuery;
 var User = (function () {
     function User() {
     }
@@ -117,9 +128,10 @@ var User = (function () {
     return User;
 }());
 exports.User = User;
-var UsersWhere = (function () {
-    function UsersWhere() {
+var UsersQuery = (function () {
+    function UsersQuery() {
     }
-    return UsersWhere;
+    return UsersQuery;
 }());
-exports.UsersWhere = UsersWhere;
+exports.UsersQuery = UsersQuery;
+//# sourceMappingURL=test-model.js.map

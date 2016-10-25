@@ -130,7 +130,7 @@ if (sequelize) {
         const buffer = table.mapEntityRelationships(
             hasMany => `\t\t${hasMany.getName()}: Sequelize.Model<Interfaces.${hasMany.getManyTypeInterfaceName()},any>;`,
             hasOne => `\t\t${hasOne.getName()}: Sequelize.Model<Interfaces.${hasOne.getOneInterfaceTypeName()},any>;`);
-        appendLine(outputSequelize, buffer + "\t}");
+        appendLine(outputSequelize, buffer + "\t};");
         appendLine(outputSequelize, "}\n");
     });
 
@@ -150,7 +150,9 @@ if (sequelize) {
         for (let field of table.getTableType().properties) {
             let typeName = field.type.text;
             if (field.name === "id") { continue; }
-            appendLine(outputSequelize, `\t\t\t${field.name}: { type: ${getSequelizeTypeofProp(modelFile, root, table.getTableType(), field)} },`);
+            if ((field as TsTypeInfo.ClassPropertyDefinition).kind !== TsTypeInfo.ClassPropertyKind.Normal) { continue; }
+            const primaryKey = (field.name === "ID") ? ", primaryKey:true " : "";
+            appendLine(outputSequelize, `\t\t\t${field.name}: { type: ${getSequelizeTypeofProp(modelFile, root, table.getTableType(), field) + primaryKey} },`);
         }
         appendLine(outputSequelize, "\t\t}),");
         appendLine(outputSequelize, `\t\t\t<Sequelize.DefineOptions<any>>Object.assign({},commonOptions,additionalOptions["${table.getTableName()}"])`);
@@ -160,6 +162,7 @@ if (sequelize) {
     appendLine(outputSequelize, "}");
 
     appendLine(outputSequelize, "export function initAssociations( tables : Tables) : void {");
+    appendLine(outputSequelize,`\tconst hasManyOptions = { constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL"};`);
     iterateRoot(modelFile, root, table => {
         if (!table.isTable) { return; }
         if (!table.getTableName()) {
@@ -167,8 +170,10 @@ if (sequelize) {
             throw "Invalid table name for " + table.tableProperty.name;
         }
         const buffer = table.mapEntityRelationships(
-            hasMany => `\ttables.${table.getTableName()}.hasMany(tables.${hasMany.getManyTableName()}, { as: "${hasMany.getName()}", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL"} )`,
-            hasOne => `\ttables.${table.getTableName()}.belongsTo(tables.${hasOne.getOneTableName()}, { foreignKey: "${hasOne.property.name}", as: "${hasOne.getName()}", constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL" })`
+            hasMany => `\ttables.${table.getTableName()}.hasMany(tables.${hasMany.getManyTableName()},
+                Object.assign({},hasManyOptions, { foreignKey: "${hasMany.property.name}", as: "${hasMany.getName()}"} ));`,
+            hasOne => `\ttables.${table.getTableName()}.belongsTo(tables.${hasOne.getOneTableName()},
+                Object.assign({},hasManyOptions, { foreignKey: "${hasOne.property.name}", as: "${hasOne.getName()}"} ));`
         );
         appendLine(outputSequelize, buffer);
     });
@@ -238,12 +243,14 @@ if (graphql) {
 
     appendLine(outputGraphQL, `import {GraphQLDate} from "./graphql-date";`);
     appendLine(outputGraphQL, `export interface GraphQLTypes {`);
+    // define GraphQL Interface Root Type
     iterateRoot(modelFile, root, table => {
         if (!table.isTable) { return; }
         appendLine(outputGraphQL, `\t${toCamel(table.getTableType().name)}Type ?: GraphQL.GraphQLObjectType;`);
     });
     appendLine(outputGraphQL, `}\n`);
 
+    // define function returning GraphQL Types 
     appendLine(outputGraphQL, `export function getGraphQL( tables: Tables ) : GraphQLTypes {`);
     appendLine(outputGraphQL, `\tconst types : GraphQLTypes = {};`);
 

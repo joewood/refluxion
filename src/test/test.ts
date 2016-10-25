@@ -3,7 +3,7 @@ import * as Q from "./refluxion/test-model.client-graphql";
 import { normalize, Schema, arrayOf, valuesOf } from "normalizr";
 
 const tt = new Q.UserQuery(["email", "id"], {
-    articles: new Q.ArticleQuery(["id", "date"], {},{author_id:"user-1"})
+    get_articles: new Q.ArticleQuery(["id", "date"], {},{author_id:"user-1"})
 },{id:"user-1"});
 
 console.log("Query: " + tt.toGraphQL())

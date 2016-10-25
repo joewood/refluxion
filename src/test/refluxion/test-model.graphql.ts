@@ -1,7 +1,9 @@
 import * as GraphQL from "graphql";
 var graphqlSeq = require("graphql-sequelize");
 let {resolver, attributeFields, defaultListArgs, defaultArgs} = graphqlSeq;
-import {Tables} from "./test-model.sequelize";
+import { Tables } from "./test-model.sequelize";
+import * as Model from "./../test-model";
+
 import {GraphQLDate} from "./graphql-date";
 export interface GraphQLTypes {
 	articleType ?: GraphQL.GraphQLObjectType;
@@ -14,20 +16,20 @@ export function getGraphQL( tables: Tables ) : GraphQLTypes {
 	 types.articleType = new GraphQL.GraphQLObjectType({
 		 name: "Article",
 		 fields: () => ({
-			 id : { type : GraphQL.GraphQLString  },
 			 content : { type : GraphQL.GraphQLString },
 			 date : { type : GraphQL.GraphQLString },
 			 archival_state : { type : GraphQL.GraphQLInt },
+			 ID : { type : GraphQL.GraphQLID},
 			 author_id : { type : GraphQL.GraphQLString },
 			 loading : { type : GraphQL.GraphQLString },
-			 comments : {
+			 get_comments : {
 				 type: new GraphQL.GraphQLList(types.commentType ),
-				 resolve: resolver( tables.article.associations.comments ),
+				 resolve: resolver( tables.articles.associations.get_comments ),
 			 },
 
-			 author : {
+			 get_author : {
 				 type: types.userType,
-				 resolve: resolver( tables.article.associations.author ),
+				 resolve: resolver( tables.articles.associations.get_author ),
 			},
 
 		})
@@ -37,19 +39,19 @@ export function getGraphQL( tables: Tables ) : GraphQLTypes {
 	 types.commentType = new GraphQL.GraphQLObjectType({
 		 name: "Comment",
 		 fields: () => ({
-			 id : { type : GraphQL.GraphQLString  },
 			 content : { type : GraphQL.GraphQLString },
 			 date : { type : GraphQLDate },
+			 id : { type : GraphQL.GraphQLID},
 			 author_id : { type : GraphQL.GraphQLString },
 			 article_id : { type : GraphQL.GraphQLString },
-			 author : {
+			 get_author : {
 				 type: types.userType,
-				 resolve: resolver( tables.comment.associations.author ),
+				 resolve: resolver( tables.comments.associations.get_author ),
 			},
 
-			 article : {
+			 get_article : {
 				 type: types.articleType,
-				 resolve: resolver( tables.comment.associations.article ),
+				 resolve: resolver( tables.comments.associations.get_article ),
 			},
 
 		})
@@ -59,18 +61,18 @@ export function getGraphQL( tables: Tables ) : GraphQLTypes {
 	 types.userType = new GraphQL.GraphQLObjectType({
 		 name: "User",
 		 fields: () => ({
-			 id : { type : GraphQL.GraphQLString  },
 			 email : { type : GraphQL.GraphQLString },
+			 id : { type : GraphQL.GraphQLID},
 			 numberComments : { type : GraphQL.GraphQLInt },
 			 gender : { type : GraphQL.GraphQLString },
-			 articles : {
+			 get_articles : {
 				 type: new GraphQL.GraphQLList(types.articleType ),
-				 resolve: resolver( tables.user.associations.articles ),
+				 resolve: resolver( tables.users.associations.get_articles ),
 			 },
 
-			 comments : {
+			 get_comments : {
 				 type: new GraphQL.GraphQLList(types.commentType ),
-				 resolve: resolver( tables.user.associations.comments ),
+				 resolve: resolver( tables.users.associations.get_comments ),
 			 },
 
 		})
@@ -80,7 +82,7 @@ export function getGraphQL( tables: Tables ) : GraphQLTypes {
 	return types;
 }
 
-export const articlesArgs : GraphQL.GraphQLFieldConfigArgumentMap = {
+export const articlesArgs /*: GraphQL.GraphQLFieldConfigArgumentMap */ = {
 	 id : { type: GraphQL.GraphQLID},
 	 contentLike : { type: GraphQL.GraphQLString},
 	 author_id : { type: GraphQL.GraphQLString},
@@ -90,7 +92,7 @@ export const articlesArgs : GraphQL.GraphQLFieldConfigArgumentMap = {
 };
 
 
-export const commentsArgs : GraphQL.GraphQLFieldConfigArgumentMap = {
+export const commentsArgs /*: GraphQL.GraphQLFieldConfigArgumentMap */ = {
 	 id : { type: GraphQL.GraphQLID},
 	 author_id : { type: GraphQL.GraphQLString},
 	 limit: { type: GraphQL.GraphQLInt },
@@ -99,7 +101,7 @@ export const commentsArgs : GraphQL.GraphQLFieldConfigArgumentMap = {
 };
 
 
-export const usersArgs : GraphQL.GraphQLFieldConfigArgumentMap = {
+export const usersArgs /*: GraphQL.GraphQLFieldConfigArgumentMap */ = {
 	 id : { type: GraphQL.GraphQLID},
 	 email : { type: GraphQL.GraphQLString},
 	 limit: { type: GraphQL.GraphQLInt },
@@ -108,53 +110,53 @@ export const usersArgs : GraphQL.GraphQLFieldConfigArgumentMap = {
 };
 
 
-export function getArticle( tables : Tables, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig {
+export function getArticle( tables : Tables, types: GraphQLTypes ) /*: GraphQL.GraphQLFieldConfig*/ {
 	 return {
 		 type: types.articleType,
-		 args: defaultArgs(tables.article),
-		 resolve: resolver(tables.article),
+		 args: defaultArgs(tables.articles),
+		 resolve: resolver(tables.articles),
 	};
 }
 
-export function get_articles( tables : Tables, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig  {
+export function get_articles( tables : Tables, types: GraphQLTypes ) /*: GraphQL.GraphQLFieldConfig */ {
 	 return {
 		 type: new GraphQL.GraphQLList(types.articleType),
 		 args: articlesArgs,
-		 resolve: resolver(tables.article),
+		 resolve: resolver(tables.articles),
 	};
 }
 
 
-export function getComment( tables : Tables, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig {
+export function getComment( tables : Tables, types: GraphQLTypes ) /*: GraphQL.GraphQLFieldConfig*/ {
 	 return {
 		 type: types.commentType,
-		 args: defaultArgs(tables.comment),
-		 resolve: resolver(tables.comment),
+		 args: defaultArgs(tables.comments),
+		 resolve: resolver(tables.comments),
 	};
 }
 
-export function get_comments( tables : Tables, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig  {
+export function get_comments( tables : Tables, types: GraphQLTypes ) /*: GraphQL.GraphQLFieldConfig */ {
 	 return {
 		 type: new GraphQL.GraphQLList(types.commentType),
 		 args: commentsArgs,
-		 resolve: resolver(tables.comment),
+		 resolve: resolver(tables.comments),
 	};
 }
 
 
-export function getUser( tables : Tables, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig {
+export function getUser( tables : Tables, types: GraphQLTypes ) /*: GraphQL.GraphQLFieldConfig*/ {
 	 return {
 		 type: types.userType,
-		 args: defaultArgs(tables.user),
-		 resolve: resolver(tables.user),
+		 args: defaultArgs(tables.users),
+		 resolve: resolver(tables.users),
 	};
 }
 
-export function get_users( tables : Tables, types: GraphQLTypes ) : GraphQL.GraphQLFieldConfig  {
+export function get_users( tables : Tables, types: GraphQLTypes ) /*: GraphQL.GraphQLFieldConfig */ {
 	 return {
 		 type: new GraphQL.GraphQLList(types.userType),
 		 args: usersArgs,
-		 resolve: resolver(tables.user),
+		 resolve: resolver(tables.users),
 	};
 }
 
@@ -187,5 +189,4 @@ export interface UsersQuery extends GraphQLWhere {
 	id? : string;
 	email? : string;
 }
-
 

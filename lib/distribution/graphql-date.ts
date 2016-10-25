@@ -30,7 +30,7 @@ export const GraphQLDate = new GraphQL.GraphQLScalarType({
     description: "A special custom Scalar type for Dates that converts to a ISO formatted string ",
     serialize: toISODate,
     parseValue: fromISODate,
-    parseLiteral(ast) {
+    parseLiteral: (ast:any) => {
         return new Date(ast.value);
     }
 });

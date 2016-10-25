@@ -1,7 +1,7 @@
 "use strict";
 var Q = require("./refluxion/test-model.client-graphql");
 var tt = new Q.UserQuery(["email", "id"], {
-    articles: new Q.ArticleQuery(["id", "date"], {}, { author_id: "user-1" })
+    get_articles: new Q.ArticleQuery(["id", "date"], {}, { author_id: "user-1" })
 }, { id: "user-1" });
 console.log("Query: " + tt.toGraphQL());
 // const res = {
