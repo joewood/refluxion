@@ -2,6 +2,11 @@ import { Dict } from "./query";
 
 export function hasMany(target: any, key: string, descriptor: PropertyDescriptor): any { return descriptor; }
 
+export const hasMany2 = (foreignKey:string) =>
+    function (target: any, key: string, descriptor: PropertyDescriptor): any {
+        return descriptor;
+    };
+
 export function hasOne<M, T>(c: { new (x: any): T }, relative: (master: M) => Dict<T>, nameOverride: string = null): any {
     return null;
 }

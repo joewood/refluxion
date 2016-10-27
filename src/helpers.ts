@@ -91,7 +91,7 @@ export class Table {
         const tableType = this.getTableType();
         for (let p of tableType.methods || []) {
             if (!p.decorators || p.decorators.length === 0) continue;
-            if (!p.decorators.find(d => d.name === "hasMany")) continue;
+            if (!p.decorators.find(d => (d.name === "hasMany" || d.name === "hasMany2"))) continue;
             buffer += hasMany(new HasMany(this.modelFile, this.root, tableType, p)) + "\n";
         }
         for (let p of tableType.properties || []) {
@@ -107,7 +107,7 @@ export class Table {
         const tableType = this.getTableType();
         for (let p of tableType.properties || []) {
             if (!p.decorators || p.decorators.length === 0) continue;
-            if (!p.decorators.find(d => d.name === "hasMany" || d.name === "hasOne")) continue;
+            if (!p.decorators.find(d => (d.name === "hasMany" || d.name === "hasMany2"))) continue;
             buffer += fieldIteration(new EntityField(this.modelFile, this.root, tableType, p)) + "\n";
         }
         return buffer;
@@ -162,13 +162,17 @@ export class EntityField {
 
 export class HasMany {
     public decorator: TsTypeInfo.DecoratorDefinition;
+    public foreignKey:string = null;
 
     constructor(
         private modelFile: TsTypeInfo.FileDefinition,
         private root: TsTypeInfo.ClassDefinition,
         private tableType: TsTypeInfo.ClassDefinition,
         public property: TsTypeInfo.ClassMethodDefinition) {
-        this.decorator = property.decorators.find(d => d.name === "hasMany");
+        this.decorator = property.decorators.find(d => d.name === "hasMany" || d.name === "hasMany2");
+        if (this.decorator.name==="hasMany2") {
+            this.foreignKey = this.decorator.arguments[0].text;
+        }
     }
 
     public getName() {

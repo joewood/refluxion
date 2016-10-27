@@ -38,6 +38,7 @@ export declare class HasMany {
     private tableType;
     property: TsTypeInfo.ClassMethodDefinition;
     decorator: TsTypeInfo.DecoratorDefinition;
+    foreignKey: string;
     constructor(modelFile: TsTypeInfo.FileDefinition, root: TsTypeInfo.ClassDefinition, tableType: TsTypeInfo.ClassDefinition, property: TsTypeInfo.ClassMethodDefinition);
     getName(): string;
     getManyType(): TsTypeInfo.ClassDefinition;

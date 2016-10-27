@@ -1,7 +1,8 @@
-import { useTable, integer, hasMany, createHasOne, root, queryBy, isIsoDate, length } from "./refluxion/decorators";
+import { useTable, integer, hasMany, hasMany2, createHasOne, root, queryBy, isIsoDate, length } from "./refluxion/decorators";
 import { Dict } from "./refluxion/query";
 
 const hasOne = createHasOne<MyModel>();
+
 
 export enum ArchivalState { live, pending, archived };
 
@@ -41,7 +42,7 @@ export class Article {
     public loading: Loading;
 
 
-    @hasMany
+    @hasMany2("article_id")
     public getComments(comments: Comment[]): Comment[] {
         return comments.filter(com => this.id === com.article_id);
     }

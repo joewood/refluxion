@@ -62,18 +62,30 @@ export function initEntities( sequelize : Sequelize.Sequelize, coreFields: Seque
 export function initAssociations( tables : Tables) : void {
 	const hasManyOptions = { constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL"};
 	tables.articles.hasMany(tables.comments,
-                Object.assign({},hasManyOptions, { foreignKey: "getComments", as: "get_comments"} ));
+                Object.assign({},hasManyOptions, { 
+                    foreignKey: "article_id", 
+                    as: "get_comments"} ));
 	tables.articles.belongsTo(tables.users,
-                Object.assign({},hasManyOptions, { foreignKey: "author_id", as: "get_author"} ));
+                Object.assign({},hasManyOptions, {
+                     foreignKey: "author_id",
+                    as: "get_author"} ));
 
 	tables.comments.belongsTo(tables.users,
-                Object.assign({},hasManyOptions, { foreignKey: "author_id", as: "get_author"} ));
+                Object.assign({},hasManyOptions, {
+                     foreignKey: "author_id",
+                    as: "get_author"} ));
 	tables.comments.belongsTo(tables.articles,
-                Object.assign({},hasManyOptions, { foreignKey: "article_id", as: "get_article"} ));
+                Object.assign({},hasManyOptions, {
+                     foreignKey: "article_id",
+                    as: "get_article"} ));
 
 	tables.users.hasMany(tables.articles,
-                Object.assign({},hasManyOptions, { foreignKey: "getArticles", as: "get_articles"} ));
+                Object.assign({},hasManyOptions, { 
+                     
+                    as: "get_articles"} ));
 	tables.users.hasMany(tables.comments,
-                Object.assign({},hasManyOptions, { foreignKey: "getComments", as: "get_comments"} ));
+                Object.assign({},hasManyOptions, { 
+                     
+                    as: "get_comments"} ));
 
 }

@@ -162,18 +162,30 @@ if (sequelize) {
     appendLine(outputSequelize, "}");
 
     appendLine(outputSequelize, "export function initAssociations( tables : Tables) : void {");
-    appendLine(outputSequelize,`\tconst hasManyOptions = { constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL"};`);
+    appendLine(outputSequelize, `\tconst hasManyOptions = { constraints:false, foreignKeyConstraint:false, onUpdate:"NO ACTION", onDelete:"SET NULL"};`);
     iterateRoot(modelFile, root, table => {
         if (!table.isTable) { return; }
         if (!table.getTableName()) {
             console.error("Cannot get the name for ", table);
             throw "Invalid table name for " + table.tableProperty.name;
         }
+        // table.mapEntityRelationships(
+        //     hasMany => {
+        //         console.info("hasMany", hasMany.property);
+        //         return "";
+        //     },
+        //     hasOne => ""
+        // );
+
         const buffer = table.mapEntityRelationships(
             hasMany => `\ttables.${table.getTableName()}.hasMany(tables.${hasMany.getManyTableName()},
-                Object.assign({},hasManyOptions, { foreignKey: "${hasMany.property.name}", as: "${hasMany.getName()}"} ));`,
+                Object.assign({},hasManyOptions, { 
+                    ${hasMany.foreignKey ? `foreignKey: ${hasMany.foreignKey},` : ""} 
+                    as: "${hasMany.getName()}"} ));`,
             hasOne => `\ttables.${table.getTableName()}.belongsTo(tables.${hasOne.getOneTableName()},
-                Object.assign({},hasManyOptions, { foreignKey: "${hasOne.property.name}", as: "${hasOne.getName()}"} ));`
+                Object.assign({},hasManyOptions, {
+                     foreignKey: "${hasOne.property.name}",
+                    as: "${hasOne.getName()}"} ));`
         );
         appendLine(outputSequelize, buffer);
     });

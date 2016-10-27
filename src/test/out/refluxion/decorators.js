@@ -1,6 +1,11 @@
 "use strict";
 function hasMany(target, key, descriptor) { return descriptor; }
 exports.hasMany = hasMany;
+exports.hasMany2 = function (foreignKey) {
+    return function (target, key, descriptor) {
+        return descriptor;
+    };
+};
 function hasOne(c, relative, nameOverride) {
     if (nameOverride === void 0) { nameOverride = null; }
     return null;

@@ -59,7 +59,7 @@ var Article = (function () {
         hasOne(User, function (master) { return master.users; })
     ], Article.prototype, "author_id", void 0);
     __decorate([
-        decorators_1.hasMany
+        decorators_1.hasMany2("article_id")
     ], Article.prototype, "getComments", null);
     return Article;
 }());
