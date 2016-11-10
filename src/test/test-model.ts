@@ -1,4 +1,4 @@
-import { useTable, integer, hasMany, hasMany2, createHasOne, root, queryBy, isIsoDate, length } from "./refluxion/decorators";
+import { useTable, integer, hasOne2, hasMany, hasMany2, hasMany3, createHasOne, root, queryBy, isIsoDate, length } from "./refluxion/decorators";
 import { Dict } from "./refluxion/query";
 
 const hasOne = createHasOne<MyModel>();
@@ -22,6 +22,12 @@ export class MyModel {
     @queryBy(UsersQuery)
     public users: Dict<User>;
 
+    constructor() {
+        this.comments = {};
+        this.articles = {};
+        this.users = {};
+    }
+
 }
 
 // Define the article class, contains a foreign key to user
@@ -33,18 +39,18 @@ export class Article {
     @length(255)
     public ID: string;
 
-    @length(255)
     public get id() { return this.ID; }
 
-    @hasOne(User, master => master.users)
+    @hasOne2<MyModel, User>(master => master.users)
     public author_id: string;
 
     public loading: Loading;
 
+    @hasMany3<Comment>(comment => comment.article_id)
+    public getComments(comments: Comment[]) : Comment[] { return null; }
 
-    @hasMany2("article_id")
-    public getComments(comments: Comment[]): Comment[] {
-        return comments.filter(com => this.id === com.article_id);
+    constructor(seed:any) {
+        Object.assign(this,seed);
     }
 }
 
@@ -72,6 +78,9 @@ export class Comment {
     @hasOne(Article, master => master.articles)
     @length(255)
     public article_id: string;
+    constructor(seed:any) {
+        Object.assign(this,seed);
+    }
 }
 
 export class CommentsQuery {

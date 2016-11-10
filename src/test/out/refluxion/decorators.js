@@ -6,6 +6,22 @@ exports.hasMany2 = function (foreignKey) {
         return descriptor;
     };
 };
+function hasMany3(relative) {
+    return function (target, key, descriptor) {
+        var _this = this;
+        console.log("Updating Target " + key);
+        return target[key] = function (entities) {
+            console.log("Filtering " + _this.id);
+            return entities.filter(function (e) { return _this.id === relative(e); });
+        };
+    };
+}
+exports.hasMany3 = hasMany3;
+function hasOne2(relative, nameOverride) {
+    if (nameOverride === void 0) { nameOverride = null; }
+    return null;
+}
+exports.hasOne2 = hasOne2;
 function hasOne(c, relative, nameOverride) {
     if (nameOverride === void 0) { nameOverride = null; }
     return null;

@@ -1,12 +1,26 @@
+import { normalize, Schema, arrayOf, valuesOf } from "normalizr";
+import { MyModel, Article, ArchivalState, Comment } from "./test-model";
+import { values } from "lodash";
 
 import * as Q from "./refluxion/test-model.client-graphql";
-import { normalize, Schema, arrayOf, valuesOf } from "normalizr";
 
 const tt = new Q.UserQuery(["email", "id"], {
-    get_articles: new Q.ArticleQuery(["id", "date"], {},{author_id:"user-1"})
-},{id:"user-1"});
+    get_articles: new Q.ArticleQuery(["id", "date"], {}, { author_id: "user-1" })
+}, { id: "user-1" });
 
 console.log("Query: " + tt.toGraphQL())
+
+const model = new MyModel();
+model.comments["ONE"] = new Comment({ id:"ONE", article_id:"ART-1",content:"CONTENT"});
+model.comments["TWO"] = new Comment({ id:"TWo", article_id:"ART-1",content:"CONTENT"});
+model.articles["ART-1"] = new Article({
+    ID:"ART-1",
+    content:"BLAG",
+    author_id:"JOE",
+    loading:"UNKNOWN", 
+    date:new Date().toISOString(),archival_state:ArchivalState.live });
+
+console.log("RES", model.articles["ART-1"].getComments( values(model.comments) ));
 
 // const res = {
 //     results: [

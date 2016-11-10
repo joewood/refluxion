@@ -17,6 +17,9 @@ var ArchivalState = exports.ArchivalState;
 // Define the root of the model. This serves as the root end-point on the server and the state of the app in Redux
 var MyModel = (function () {
     function MyModel() {
+        this.comments = {};
+        this.articles = {};
+        this.users = {};
     }
     __decorate([
         decorators_1.useTable("articles"),
@@ -38,29 +41,23 @@ var MyModel = (function () {
 exports.MyModel = MyModel;
 // Define the article class, contains a foreign key to user
 var Article = (function () {
-    function Article() {
+    function Article(seed) {
+        Object.assign(this, seed);
     }
     Object.defineProperty(Article.prototype, "id", {
         get: function () { return this.ID; },
         enumerable: true,
         configurable: true
     });
-    Article.prototype.getComments = function (comments) {
-        var _this = this;
-        return comments.filter(function (com) { return _this.id === com.article_id; });
-    };
     __decorate([
         decorators_1.length(255)
     ], Article.prototype, "ID", void 0);
     __decorate([
-        decorators_1.length(255)
-    ], Article.prototype, "id", null);
-    __decorate([
-        hasOne(User, function (master) { return master.users; })
+        decorators_1.hasOne2(function (master) { return master.users; })
     ], Article.prototype, "author_id", void 0);
     __decorate([
-        decorators_1.hasMany2("article_id")
-    ], Article.prototype, "getComments", null);
+        decorators_1.hasMany3(function (comment) { return comment.article_id; })
+    ], Article.prototype, "getComments", void 0);
     return Article;
 }());
 exports.Article = Article;
@@ -77,7 +74,8 @@ var ArticlesQuery = (function () {
 }());
 exports.ArticlesQuery = ArticlesQuery;
 var Comment = (function () {
-    function Comment() {
+    function Comment(seed) {
+        Object.assign(this, seed);
     }
     __decorate([
         decorators_1.isIsoDate()

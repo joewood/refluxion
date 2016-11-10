@@ -1,9 +1,21 @@
 "use strict";
+var test_model_1 = require("./test-model");
+var lodash_1 = require("lodash");
 var Q = require("./refluxion/test-model.client-graphql");
 var tt = new Q.UserQuery(["email", "id"], {
     get_articles: new Q.ArticleQuery(["id", "date"], {}, { author_id: "user-1" })
 }, { id: "user-1" });
 console.log("Query: " + tt.toGraphQL());
+var model = new test_model_1.MyModel();
+model.comments["ONE"] = new test_model_1.Comment({ id: "ONE", article_id: "ART-1", content: "CONTENT" });
+model.comments["TWO"] = new test_model_1.Comment({ id: "TWo", article_id: "ART-1", content: "CONTENT" });
+model.articles["ART-1"] = new test_model_1.Article({
+    ID: "ART-1",
+    content: "BLAG",
+    author_id: "JOE",
+    loading: "UNKNOWN",
+    date: new Date().toISOString(), archival_state: test_model_1.ArchivalState.live });
+console.log("RES", model.articles["ART-1"].getComments(lodash_1.values(model.comments)));
 // const res = {
 //     results: [
 //         {
